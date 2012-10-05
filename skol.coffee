@@ -84,10 +84,12 @@ if system.args.length < 3
   console.info "Usage: skol.coffee <author> <title>"
   phantom.exit()
 
-author = """author:"#{ system.args[1] }" """
+# don't add "author:" because then scholar screws up
+author = """ "#{ system.args[1] }" """
 debug.debug "* author: ", author
 
-title = """ title:"#{ system.args[2] }" """
+# don't add "title:" because then scholar screws up
+title = """ "#{ system.args[2] }" """
 debug.debug "* title: ", title
 
 uri = encodeURI('http://scholar.google.co.uk/scholar?q=' + author + title)
