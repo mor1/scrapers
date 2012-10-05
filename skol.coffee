@@ -21,15 +21,24 @@ page = require('webpage').create()
 system = require 'system'
 fs = require 'fs'
 
+## file imports
+#
+jqurl = './jquery-1.8.2.min.js'
+phantom.injectJs jqurl
+
+logurl = './ba-debug.min.js'
+phantom.injectJs logurl
+debug.setLevel(3)
+    
 ## setup page callbacks
 # 
 page.viewportSize = { width: 1280, height: 640 }
 
 page.onError = (msg, trace) ->
-  console.log "# ERR:", msg
+  debug.error "# ERR:", msg
   for t in trace
     do (t) ->
-      console.log "#     ",
+      debug.error "#     ",
         t.file + "[" + t.line + "]: " + (t.function? " (f: #{ t.function })")
   phantom.exit()
 
@@ -37,13 +46,13 @@ page.onConsoleMessage = (msg) ->
   console.log msg
 
 page.onAlert = (msg) ->
-  console.log "@", msg
+  debug.warn "@", msg
 
 page.onLoadFinished = (status) ->
-  console.log "* fetched page, status=", status
+  debug.debug "* fetched page, status=", status
   if status isnt 'success'
-    console.log '# unable to grab page!', success
-  else main page
+    debug.error '# unable to grab page!', success
+  else process page
   phantom.exit()
 
 page.save = (path) ->
@@ -51,47 +60,38 @@ page.save = (path) ->
 
 ## main logic
 # 
-jqurl = './jquery-1.8.2.min.js'
-jquery = (page) ->
-  console.log "* injecting jquery"
-  if !(page.injectJs jqurl)
-    console.log "# injection failed!"
-    phantom.exit()
-    
-  console.log "* injected"
-  # page.includeJs "file://./#{ jqurl }", (process page)
 
 process = (page) ->
-  console.log "* processing"
+  debug.debug "* success"
+  page.render "debug.1.png"
   page.save "debug.2.html"
 
+  # inject libraries into page
+  debug.debug "* injecting jquery"
+  if !(page.injectJs jqurl)
+    debug.error "# injection failed!"
+    phantom.exit()
+
+  # now evaluate and process page contents
+  debug.debug "* processing"
   page.evaluate ->
     entry = $("#gs_ccl > .gs_r").eq(0).contents(".gs_ri")
-    # console.log $(entry).html()
     title = $(entry).contents("h3.gs_rt").text()
     cites = $(entry).contents(".gs_fl").text().match("Cited by ([0-9]+)")[1]
-    console.log "Title: '#{ title }', Cites: #{ cites }"
-    
-main = (page) ->
-  console.log "* success"
-  page.render "debug.1.png"
-  jquery page
-  process page
+    console.log "Title:'#{ title }', Cites:#{ cites }"
 
-## main
-# 
 if system.args.length < 3
-  console.log "Usage: skol.coffee <author> <title>"
+  console.info "Usage: skol.coffee <author> <title>"
   phantom.exit()
 
 author = """author:"#{ system.args[1] }" """
-console.log "* author: ", author
+debug.debug "* author: ", author
 
-title = """ "#{ system.args[2] }" """
-console.log "* title: ", title
+title = """ title:"#{ system.args[2] }" """
+debug.debug "* title: ", title
 
 uri = encodeURI('http://scholar.google.co.uk/scholar?q=' + author + title)
-console.log "* uri: ", uri
+debug.debug "* uri: ", uri
 
-console.log "* opening page"
+debug.debug "* opening page"
 page.open uri
