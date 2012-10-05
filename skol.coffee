@@ -81,7 +81,7 @@ process = (page) ->
     console.log "Title:'#{ title }', Cites:#{ cites }"
 
 if system.args.length < 3
-  console.info "Usage: skol.coffee <author> <title>"
+  console.error "Usage: skol.coffee <author> <title>"
   phantom.exit()
 
 # don't add "author:" because then scholar screws up
@@ -89,11 +89,12 @@ author = """ "#{ system.args[1] }" """
 debug.debug "* author: ", author
 
 # don't add "title:" because then scholar screws up
-title = """ "#{ system.args[2] }" """
+title = """ #{ system.args[2] } """
 debug.debug "* title: ", title
 
-uri = encodeURI('http://scholar.google.co.uk/scholar?q=' + author + title)
-debug.debug "* uri: ", uri
+# title first because author is quoted
+uri = encodeURI('http://scholar.google.co.uk/scholar?q=' + title + author)
+debug.info "* uri: ", uri
 
 debug.debug "* opening page"
 page.open uri

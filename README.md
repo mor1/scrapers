@@ -17,3 +17,10 @@ You should obey Google's `robots.txt` file if and when you run this script (or a
 [coffee]: http://coffeescript.org/
 [jQuery]: http://jquery.com/
 [debug]: http://benalman.com/projects/javascript-debug-console-log/
+
+
+TODO
+----
+
++ \[PDF]\[PDF] at the start of the title
++ really need to check the title of the block and move to next if insufficiently good match
