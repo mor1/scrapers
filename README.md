@@ -24,3 +24,4 @@ TODO
 
 + \[PDF]\[PDF] at the start of the title
 + really need to check the title of the block and move to next if insufficiently good match
++ subtitle not captured by scholar but is in initial entry

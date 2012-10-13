@@ -15,21 +15,45 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place - Suite 330, Boston, MA 02111-1307, USA.
 
-import sys, os
+import sys, subprocess, time
+
+def clean_author(author):
+    for c in ":\"'`)": 
+        author = author.replace(c, "")
+    names = author.split("(")
+
+    author = "%s %s" % (
+        "".join(names[1:]).replace(" ",""), names[0].strip())
+    return author
+
+def clean_title(title):
+    for c in ":\"'`)": 
+        title = title.replace(c, "")
+
+    title = title.replace("(", "")
+    return title
 
 if __name__ == '__main__':
-
+    
+    start = time.time()
     with open(sys.argv[1]) as lines:
+        i = 0
         for line in [ l.strip().split("\t") for l in lines if l[0] != '#' ]:
-            
-            names = line[2][:-2]
-            title = line[5]
-            for c in ":\"'`)": 
-                names = names.replace(c, "")
-                title = title.replace(c, "")
+            i += 1
 
-            names = names.split("(")
-            title = title.replace("(", "")
-            author = "%s %s" % ("".join(names[1:]).replace(" ",""), names[0].strip())
-            os.system('''echo Title:\\\'%s\\\' Author:\\\'%s\\\' && ./skol.coffee "%s" "%s"''' 
-                      % (title, author, author, title))
+            title = clean_title(line[5].strip())
+            author = clean_author(line[2][:-2])
+            print("%d\nTitle:'%s' | Author:%s" % (i, title, author))
+
+            p = subprocess.Popen(['./skol.coffee', 
+                                  '%s' % (author,), 
+                                  '%s' % (title,)
+                                  ], 
+                                 stdout=subprocess.PIPE)
+            print(p.communicate()[0].decode("utf-8"))
+            # os.system('''./skol.coffee "%s" "%s"''' % (author, title))
+
+    end = time.time()
+    print("start =", time.ctime(start))
+    print("end =", time.ctime(end))
+    print("elapsed time =", end-start)

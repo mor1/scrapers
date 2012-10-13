@@ -28,11 +28,15 @@ phantom.injectJs jqurl
 
 logurl = './ba-debug.min.js'
 phantom.injectJs logurl
-debug.setLevel(3)
+debug.setLevel(5)
+
+g_status = 0
+g_uri = ""
     
 ## setup page callbacks
 # 
 page.viewportSize = { width: 1280, height: 640 }
+page.settings.userAgent = '''Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.79 Safari/537.4'''
 
 page.onError = (msg, trace) ->
   debug.error "# ERR:", msg
@@ -52,8 +56,14 @@ page.onLoadFinished = (status) ->
   debug.debug "* fetched page, status=", status
   if status isnt 'success'
     debug.error '# unable to grab page!', success
+  else if g_status isnt 200
+    debug.error '# error grabbing page!', g_status
   else process page
   phantom.exit()
+
+page.onResourceReceived = (resource) ->
+  if resource.url == g_uri
+    g_status = resource.status
 
 page.save = (path) ->
   fs.write path, page.content, "w"
@@ -75,10 +85,13 @@ process = (page) ->
   # now evaluate and process page contents
   debug.debug "* processing"
   page.evaluate ->
-    entry = $("#gs_ccl > .gs_r").eq(0).contents(".gs_ri")
-    title = $(entry).contents("h3.gs_rt").text()
-    cites = $(entry).contents(".gs_fl").text().match("Cited by ([0-9]+)")[1]
-    console.log "Title:'#{ title }', Cites:#{ cites }"
+    try
+      entry = $("#gs_ccl > .gs_r").eq(0).contents(".gs_ri")
+      title = $(entry).contents("h3.gs_rt").text()
+      cites = $(entry).contents(".gs_fl").text().match("Cited by ([0-9]+)")[1]
+      console.log "Title:#{ title } | Cites:#{ cites }"
+    catch error
+      console.log '# NOT FOUND', error
 
 if system.args.length < 3
   console.error "Usage: skol.coffee <author> <title>"
@@ -89,12 +102,12 @@ author = """ "#{ system.args[1] }" """
 debug.debug "* author: ", author
 
 # don't add "title:" because then scholar screws up
-title = """ #{ system.args[2] } """
+title = """ "#{ system.args[2] }" """
 debug.debug "* title: ", title
 
 # title first because author is quoted
-uri = encodeURI('http://scholar.google.co.uk/scholar?q=' + title + author)
-debug.info "* uri: ", uri
+g_uri = encodeURI('http://scholar.google.co.uk/scholar?q=' + title + author)
+debug.info "* uri: ", g_uri
 
 debug.debug "* opening page"
-page.open uri
+page.open g_uri
