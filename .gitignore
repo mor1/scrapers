@@ -1,6 +1,4 @@
 debug.*
 *.txt
 *.csv
-ned-data.js
-skol.js
-
+*.js
