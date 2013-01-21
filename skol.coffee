@@ -1,4 +1,4 @@
-#!/usr/bin/env phantomjs
+#!/usr/bin/env casperjs
 
 # Copyright (C) 2012 Richard Mortier <mort@cantab.net>. All Rights Reserved.
 #
@@ -15,99 +15,49 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place - Suite 330, Boston, MA 02111-1307, USA.
 
-## module imports
-# 
-page = require('webpage').create()
 system = require 'system'
 fs = require 'fs'
+utils = require 'utils'
 
-## file imports
-#
-jqurl = './jquery-1.8.2.min.js'
-phantom.injectJs jqurl
+casper = require('casper').create({
+  clientScripts:  [
+    './jquery-1.8.2.min.js'
+  ],
 
-logurl = './ba-debug.min.js'
-phantom.injectJs logurl
-debug.setLevel(5)
-
-g_status = 0
-g_uri = ""
+  logLevel: "debug",
+  verbose: false,
+  viewportSize: { width: 1280, height: 640 },
     
-## setup page callbacks
-# 
-page.viewportSize = { width: 1280, height: 640 }
-page.settings.userAgent = '''Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.79 Safari/537.4'''
+  pageSettings: {
+    loadImages:  false,
+    loadPlugins: false,
+    userAgent: '''Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.79 Safari/537.4'''
+  }
+})
 
-page.onError = (msg, trace) ->
-  debug.error "# ERR:", msg
-  for t in trace
-    do (t) ->
-      debug.error "#     ",
-        t.file + "[" + t.line + "]: " + (t.function? " (f: #{ t.function })")
-  phantom.exit()
+usage = ->
+  casper.die "Usage: #{ system.args[3] } <author> <title>", 1
 
-page.onConsoleMessage = (msg) ->
-  console.log msg
+## handle options
+casper.cli.drop("cli")
+casper.cli.drop("casper-path")
+if casper.cli.args.length == 0 and Object.keys(casper.cli.options).length == 0
+  usage()
 
-page.onAlert = (msg) ->
-  debug.warn "@", msg
+## setup uri
+author = encodeURI(casper.cli.args[0])
+title = encodeURI(casper.cli.args[1])
+usage() if (author == "" or title == "")
+uri = encodeURI("http://scholar.google.co.uk/scholar?q=#{title}+#{author}")
 
-page.onLoadFinished = (status) ->
-  debug.debug "* fetched page, status=", status
-  if status isnt 'success'
-    debug.error '# unable to grab page!', success
-  else if g_status isnt 200
-    debug.error '# error grabbing page!', g_status
-  else process page
-  phantom.exit()
-
-page.onResourceReceived = (resource) ->
-  if resource.url == g_uri
-    g_status = resource.status
-
-page.save = (path) ->
-  fs.write path, page.content, "w"
-
-## main logic
-# 
-
-process = (page) ->
-  debug.debug "* success"
-  page.render "debug.1.png"
-  page.save "debug.2.html"
-
-  # inject libraries into page
-  debug.debug "* injecting jquery"
-  if !(page.injectJs jqurl)
-    debug.error "# injection failed!"
-    phantom.exit()
-
-  # now evaluate and process page contents
-  debug.debug "* processing"
-  page.evaluate ->
-    try
-      entry = $("#gs_ccl > .gs_r").eq(0).contents(".gs_ri")
-      title = $(entry).contents("h3.gs_rt").text()
-      cites = $(entry).contents(".gs_fl").text().match("Cited by ([0-9]+)")[1]
-      console.log "Title:#{ title } | Cites:#{ cites }"
-    catch error
-      console.log '# NOT FOUND', error
-
-if system.args.length < 3
-  console.error "Usage: skol.coffee <author> <title>"
-  phantom.exit()
-
-# don't add "author:" because then scholar screws up
-author = """ "#{ system.args[1] }" """
-debug.debug "* author: ", author
-
-# don't add "title:" because then scholar screws up
-title = """ "#{ system.args[2] }" """
-debug.debug "* title: ", title
-
-# title first because author is quoted
-g_uri = encodeURI('http://scholar.google.co.uk/scholar?q=' + title + author)
-debug.info "* uri: ", g_uri
-
-debug.debug "* opening page"
-page.open g_uri
+## go!
+casper.start uri, ->
+  @echo JSON.stringify @evaluate ((author) ->
+    entry = $("#gs_ccl > .gs_r").eq(0).contents(".gs_ri")
+    title = $(entry).contents("h3.gs_rt").text()
+    cites = $(entry).contents(".gs_fl").text().match("Cited by ([0-9]+)")[1]
+    return { title: title, cites: cites, author: author }
+    ), { author }
+    
+casper.run ->
+  casper.exit()
