@@ -38,7 +38,7 @@ casper = require('casper').create({
 casper.on 'page.error', (msg,ts) ->
   ## format remote page error per casperjs standard; based on casperjs code
   c = @getColorizer()
-  console.error c.colorize msg, 'RED_BAR', 80
+  console.error c.colorize "[remote] #{msg}", 'RED_BAR', 80
   for t in ts
     do (t) ->
       m = fs.absolute t.file + ":" + c.colorize t.line, "COMMENT"
@@ -61,8 +61,9 @@ is_radec = casper.cli.options['radec']
 is_name = casper.cli.options['name']
 usage() if (is_radec and is_name) or not (is_radec or is_name)
 
-uri = "http://ned.ipac.caltech.edu/forms/gmd.html" if is_name
-uri = "http://ned.ipac.caltech.edu/forms/nnd.html" if is_radec
+root = "http://ned.ipac.caltech.edu"
+uri = "#{ root }/forms/gmd.html" if is_name
+uri = "#{ root }/forms/nnd.html" if is_radec
 casper.log uri, "debug"
 
 ## read input data
@@ -78,11 +79,11 @@ casper.start uri, ->
 images = {}
 casper.then ->
   ## iterate over table, creating filename for object and recording metadata
-  i = @evaluate ((is_name) ->
+  images = @evaluate ((is_name) ->
     zpad = (s, mx) -> if s.length < mx then zpad("0" + s, mx) else s
     rows = $('td pre').html().trim().split("\n")
-    objname_index = if is_name then 4 else 5
-    image_index = if is_name then 11 else 12
+    obj_idx = if is_name then 4 else 5
+    image_idx = if is_name then 11 else 12
 
     # when i say table, i mean "literal chunk of ascii text enclosed with
     # <pre></pre> in a single row of a single column in a table. ie., not a
@@ -103,49 +104,38 @@ casper.then ->
     for i in (i for i in [4...rows.length]) # ignore header rows
       do (rows, i) ->
         cols = rows[i].split("|")
-        objname = cols[objname_index].replace(/\s+/g, '').toUpperCase()
+        obj = cols[obj_idx].replace(/\s+/g, '').toUpperCase()
         n = zpad(""+(i-3), (""+rows.length).length)
-        objpfx = "object_#{ n }_#{ objname }"    
-        
-        image_url = cols[image_index]
-        if objpfx of images
-          images[objpfx].push image_url
+        n_obj = "#{n}|#{obj}"
+        image_url = cols[image_idx]
+        if n_obj of images
+          images[n_obj].push image_url
         else
-          images[objpfx] = [cols[image_index]]
+          images[n_obj] = [cols[image_idx]]
 
-    return images
+    images
   ), { is_name, images }
-
-  images = i
     
 casper.then ->
-  for op, urls of images
-    console.error "#{ op } -- #{ urls }"
-  
-# casper.then ->
-#   for obj, uri of images
-#     console.log "#{ obj } -- #{ uri }"
-#     console.log "JJJJJJ"
-#     u = uri.match(/href="(.*)"/)
-#     console.log "XXX #{u}"
+  ## having extracted objname-imagelinks mapping, grab link urls
+  re = /href=["](.*)["]/i
+  for n_obj, links of images
+    [n, obj] = n_obj.split("|")
+    hrefs = (re.exec(link) for link in links)
+    for href in hrefs
+      url = "#{root}#{href[1].replace(/&amp;/g, '&')}"
+      @echo "#{n} -- #{obj} -- #{url}", "INFO"
 
-
-
-# follow link in col[10]
-  # for each entry in col[1]
-  #   retrieve file in "Retrieve" link
-  #   save as objpfx_col[4].replace(/\s+/g,'').upper()
-  # filepfx = "#{objpfx}_#{band}"
-      
-
-# casper.then ->
-#   # for each row in table
-#     # objname = munge(col[6]) 
-#     # name = "obj_" idx "_" objname "_" col[5]
-#     # if name in use, increment counter and append "vX" 
-#     # retrieve contents pointed to by col[2] and save as name
-#     # append to metadata: idx objname col[5:10]
-  
+# navigate to url
+# for each row in table
+  # data = target-of-col[2] (Retrieve link)
+  # band = col[5].split(",")[0]
+  # ext = extension-of-target-of-col[2] (Retrieve link)
+  # filename = object_#{n}_#{obj}_#{band}.#{ext}
+  # if filename exists
+    # filename = #{filename}.v#{count filenames}
+  # save data as filename
+  # append to metadata.txt: n, obj, cols[5-9]
 
 casper.run ->
   casper.log "ran!", "info"
