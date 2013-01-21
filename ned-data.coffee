@@ -66,12 +66,10 @@ uri = "http://ned.ipac.caltech.edu/forms/nnd.html" if is_radec
 casper.log uri, "debug"
 
 ## read input data
-# 
 data = fs.open(casper.cli.args[0], "r").read()
 
-## fetch base page, check "images", complete form
-# 
 casper.start uri, ->
+  ## fetch base page, check "images" option, complete form
   @click "input[value='link_image']"
   data = { 'uplist': data }
   if is_radec then data['sr_arcsec'] = 30.0
