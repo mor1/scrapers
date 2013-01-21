@@ -35,12 +35,20 @@ casper = require('casper').create({
   }
 })
 
-casper.onConsoleMessage = (m) -> casper.log m, "info"
-casper.onError = (m) -> casper.die '# '+m, 2
-casper.onAlert = (m) -> casper.log "@", "warn"
+casper.on 'page.error', (msg,ts) ->
+  ## format remote page error per casperjs standard; based on casperjs code
+  c = @getColorizer()
+  console.error c.colorize msg, 'RED_BAR', 80
+  for t in ts
+    do (t) ->
+      m = fs.absolute t.file + ":" + c.colorize t.line, "COMMENT"
+      if t['function']
+        m += " in " + c.colorize t['function'], "PARAMETER"
+      console.error "  #{ m }"
+ 
+casper.on 'remote.alert', (m) -> @log '[remote-alert] #{m}', "warn"
 
 ## handle cli options
-# 
 usage = ->
   casper.die "Usage: #{ system.args[3] } [--name|--radec] <datafile>", 1
 
