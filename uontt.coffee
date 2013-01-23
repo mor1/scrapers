@@ -15,9 +15,18 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place - Suite 330, Boston, MA 02111-1307, USA.
 
+require './jquery-1.9.0.js'
 system = require 'system'
 fs = require 'fs'
 utils = require 'utils'
+
+String::lpad = (s, mx) ->
+  while s.length < mx then s = " " + s
+  s
+
+String::rpad = (s, mx) ->
+  while s.length < mx then s += " "
+  s
 
 casper = require('casper').create({
   clientScripts:  [
@@ -216,9 +225,14 @@ casper.start uri, ->
   ), { tts }
     
 casper.run ->
+  c = @getColorizer()
+  tts = Array::slice.call(tts) ## explicit cast to Array
   if do_pretty
-    tts.each (i, m) ->
-      @echo "\x1b[0;1m#{m['code']}\x1b[0m -- #{m['title']}"
+    $(tts).sort().each (i, m) ->
+      casper.echo c.format "#{m['code']} -- #{m['title']}", { bold: true }
+      $(m['activities']).sort().each (i, a) ->
+        weeks = a['weeks'].split("-").map((x) -> x.replace(' w/c ', ''))
+        casper.echo c.format "\t#{a['code']} #{String::lpad(a['day'],10)} #{a['start']}--#{a['end']} #{String::rpad(a['room'],16)} #{weeks}"
   else
     @echo JSON.stringify tts
   casper.exit()
