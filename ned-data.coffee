@@ -91,7 +91,7 @@ casper.then ->
     image_idx = if is_name then 10 else 11
 
     # when i say table, i mean "literal chunk of ascii text enclosed with
-    # <pre></pre> in a single row of a single column in a table. ie., not a
+    # <pre></pre> in a single row of a single column in a table". ie., not a
     # table in any useful sense. ffs.
     #
     # indeed, looking at a tcpdump, it appears that the server
