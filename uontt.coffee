@@ -54,12 +54,14 @@ dbg = (m) ->
 
 ## handle options
 usage = ->
-  casper.die "Usage: #{ system.args[3] } <modulecode>", 1
+  casper.die "Usage: #{ system.args[3] } [-p|--pretty] <modulecode>", 1
 
 casper.cli.drop("cli")
 casper.cli.drop("casper-path")
 if casper.cli.args.length == 0 and Object.keys(casper.cli.options).length == 0
   usage()
+
+do_pretty = casper.cli.options['pretty'] or casper.cli.options['p']
 
 ## globals
 tt_url = "http://uiwwwsci01.ad.nottingham.ac.uk:8003/reporting/Spreadsheet;module;id"
@@ -214,4 +216,9 @@ casper.start uri, ->
   ), { tts }
     
 casper.run ->
+  if do_pretty
+    tts.each (i, m) ->
+      @echo "\x1b[0;1m#{m['code']}\x1b[0m -- #{m['title']}"
+  else
+    @echo JSON.stringify tts
   casper.exit()
