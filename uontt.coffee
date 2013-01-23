@@ -169,12 +169,11 @@ module_map = {
   
 ## setup uri
 mids = casper.cli.args.map((mcode) -> module_map[mcode.toUpperCase()]).join("\n")
-usage() if (mids == "")
 uri = "#{tt_url};#{encodeURIComponent(mids)}?#{tt_url_params}"
 
+tts = []
 casper.start uri, ->
-  tts = @evaluate () ->
-    tts = []
+  tts = @evaluate ((tts) ->
     tt = {}
     $("body > table").each (i,table) ->
       switch i % 4
@@ -207,9 +206,12 @@ casper.start uri, ->
               }
               tt['activities'].push activity
               activities_seen.push code
-    tts.push tt
+    
+    ## intermittently get a spurious footer, which will mean we already added
+    ## the real tt so don't add the blank one just created
+    if tt['title'] != '' then tts.push tt
     tts
-  @echo JSON.stringify tts
+  ), { tts }
     
 casper.run ->
   casper.exit()
