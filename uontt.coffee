@@ -1,6 +1,9 @@
 #!/usr/bin/env casperjs
-
-# Copyright (C) 2012 Richard Mortier <mort@cantab.net>. All Rights Reserved.
+#
+# Scrape UoN timetable data given module codes.
+# TODO: retreive module details from module specification.
+#
+# Copyright (C) 2013 Richard Mortier <mort@cantab.net>. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 2 as published by
@@ -20,14 +23,6 @@ system = require 'system'
 fs = require 'fs'
 utils = require 'utils'
 
-String::lpad = (s, mx) ->
-  while s.length < mx then s = " " + s
-  s
-
-String::rpad = (s, mx) ->
-  while s.length < mx then s += " "
-  s
-
 casper = require('casper').create({
   clientScripts:  [
     './jquery-1.8.2.min.js'
@@ -42,6 +37,15 @@ casper = require('casper').create({
     loadPlugins: false,
   }
 })
+
+## string helpers
+lpad = (s, mx) ->
+  while s.length < mx then s = " " + s
+  s
+
+rpad = (s, mx) ->
+  while s.length < mx then s += " "
+  s
 
 ## error handling
 casper.on 'page.error', (msg,ts) ->
@@ -63,7 +67,7 @@ dbg = (m) ->
 
 ## handle options
 usage = ->
-  casper.die "Usage: #{ system.args[3] } [-p|--pretty] <modulecode>", 1
+  casper.die "Usage: #{ system.args[3] } [--pretty] <modulecode>", 1
 
 casper.cli.drop("cli")
 casper.cli.drop("casper-path")
@@ -179,11 +183,13 @@ module_map = {
   }
   
 ## setup uri
-mids = casper.cli.args.map((mcode) -> module_map[mcode.toUpperCase()]).join("\n")
+mids = casper.cli.args.map((mcode) ->
+  module_map[mcode.toUpperCase()]).join("\n")
 uri = "#{tt_url};#{encodeURIComponent(mids)}?#{tt_url_params}"
 
 tts = []
 casper.start uri, ->
+  ## fetch and parse timetable page
   tts = @evaluate ((tts) ->
     tt = {}
     $("body > table").each (i,table) ->
@@ -223,16 +229,46 @@ casper.start uri, ->
     if tt['title'] != '' then tts.push tt
     tts
   ), { tts }
-    
+      
 casper.run ->
+  
+  format_weeks = (weeks) ->
+    ## attempt to format the "weeks" column reasonably. still not correct as
+    ## not always ranges -- can have single weeks specified.
+    weeks = weeks.split(/,|-/).map((x) -> x.trim())
+    wcs = weeks.filter((s,i) -> i % 2 == 0)
+    dates = weeks.filter((s,i) -> i % 2 == 1)
+    retval = ''
+    for i in [0..wcs.length-1] by 2
+      if i > 0 then retval += lpad('', 81)
+      retval += "#{wcs[i]}--#{wcs[i+1]} (#{dates[i]}--#{dates[i+1]}), "
+    retval.replace(/, $/,'')
+
+  ## output results!  
   c = @getColorizer()
   tts = Array::slice.call(tts) ## explicit cast to Array
-  if do_pretty
+  
+  if not do_pretty
+    ## raw JSON dump
+    @echo JSON.stringify tts
+  else
+    ## pretty print for human consumption
+    days = [
+      'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
+      'Saturday', 'Sunday'
+    ]
+
     $(tts).sort().each (i, m) ->
       casper.echo c.format "#{m['code']} -- #{m['title']}", { bold: true }
-      $(m['activities']).sort().each (i, a) ->
-        weeks = a['weeks'].split("-").map((x) -> x.replace(' w/c ', ''))
-        casper.echo c.format "\t#{a['code']} #{String::lpad(a['day'],10)} #{a['start']}--#{a['end']} #{String::rpad(a['room'],16)} #{weeks}"
-  else
-    @echo JSON.stringify tts
+      $(m['activities']).sort((x, y) ->
+        ## order activities by day of week
+        d = days.indexOf(x['day']) - days.indexOf(y['day'])
+        if d < 0 then -1 else if d > 0 then 1 else 0
+      ).each (i, a) ->
+        weeks = format_weeks(a['weeks'])
+        casper.echo c.format \
+          "  #{rpad(a['code'],19)} #{lpad(a['day'],10)}"\
+          +" #{lpad(a['start'], 6)}--#{rpad(a['end'],6)}"\
+          +" #{rpad(a['room'],16)} #{weeks}"
+
   casper.exit()
