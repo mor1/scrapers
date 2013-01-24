@@ -29,7 +29,7 @@ casper = require('casper').create({
   ],
 
   logLevel: "debug",
-  verbose: false,
+  verbose: true,
   viewportSize: { width: 1280, height: 640 },
     
   pageSettings: {
@@ -74,11 +74,14 @@ casper.cli.drop("casper-path")
 if casper.cli.args.length == 0 and Object.keys(casper.cli.options).length == 0
   usage()
 
-do_pretty = casper.cli.options['pretty'] or casper.cli.options['p']
+do_pretty = casper.cli.options['pretty']
+do_details = casper.cli.options['details']
 
 ## globals
 tt_url = "http://uiwwwsci01.ad.nottingham.ac.uk:8003/reporting/Spreadsheet;module;id"
 tt_url_params = "template=SWSCUST+Module+Spreadsheet&weeks=1-52"
+m_url = "http://modulecatalogue.nottingham.ac.uk/Nottingham/asp/moduledetails.asp"
+m_url_params = (yr, id) -> "year_id=#{yr}&crs_id=#{id}"
 
 module_map = {
   "G50PRO": "018563" ,
@@ -229,6 +232,17 @@ casper.start uri, ->
     if tt['title'] != '' then tts.push tt
     tts
   ), { tts }
+
+casper.then ->
+  for tt in tts
+    id = module_map[tt['code']]
+    yr = "000112"
+    url = "#{m_url}?#{m_url_params(yr, id)}"
+    tt = @open(url).thenEvaluate ((tt) ->
+      delete console.log
+      console.log "i", tt
+    ), { tt }
+    console.log "o", tt
       
 casper.run ->
   
@@ -251,9 +265,8 @@ casper.run ->
   ## output results!  
   c = @getColorizer()
   tts = Array::slice.call(tts) ## explicit cast to Array
-  
-  if not do_pretty
-    ## raw JSON dump
+ 
+  if not do_pretty ## raw JSON dump
     @echo JSON.stringify tts
   else
     ## pretty print for human consumption
