@@ -234,16 +234,41 @@ casper.start uri, ->
   ), { tts }
 
 casper.then ->
-  for tt in tts
+  ttds = []
+  for tt, i in tts
     id = module_map[tt['code']]
     yr = "000112"
     url = "#{m_url}?#{m_url_params(yr, id)}"
-    tt = @open(url).thenEvaluate ((tt) ->
-      delete console.log
-      console.log "i", tt
-    ), { tt }
-    console.log "o", tt
-      
+    @open(url).then ->
+      tt = @evaluate ((tt) ->
+        console.log $("html").html()
+
+        year = $("h3").text().replace(/Year\s+/, '')
+        tt['year'] = year
+        ps = $('p > b')
+        console.log ps.length, ps.each((i,p) ->
+          label = $(p).text().replace(/:\s+$/, '')
+          value = $(p).parents().first().text()
+            .replace(label, '')
+            .replace(/^:[\s\n]+/, '').replace(/[\s\n]+$/, '')
+
+          switch label
+            when 'Total Credits' then tt['credits'] = value
+            when 'Level' then tt['level'] = value.split(/\s+/)[1]
+            when 'Prerequisites' then tt['prereqs'] = value.replace(/[.]$/,'')
+            when 'Corequisites' then tt['coreqs'] = value.replace(/[.]$/,'')
+            when 'Convenor'
+              convenors = $(p).parents().first().html()
+                .split("<br>")[1..].map((x) -> x.trim())
+                .filter((x) -> x.length > 0)
+              tt['convenors'] = convenors
+            else console.log "L '"+label+"' value '"+value+"'"
+        )        
+        tt
+      ), { tt }
+      ## doh. "i" auto-index is 1-offset not 0-offset...
+      tts[i-1] = tt
+                        
 casper.run ->
   
   format_weeks = (weeks) ->
