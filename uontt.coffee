@@ -233,17 +233,21 @@ casper.start uri, ->
 casper.run ->
   
   format_weeks = (weeks) ->
-    ## attempt to format the "weeks" column reasonably. still not correct as
-    ## not always ranges -- can have single weeks specified.
-    weeks = weeks.split(/,|-/).map((x) -> x.trim())
-    wcs = weeks.filter((s,i) -> i % 2 == 0)
-    dates = weeks.filter((s,i) -> i % 2 == 1)
+    ## attempt to format the "weeks" column reasonably.
+    ranges = weeks
+      .split(/,/)
+      .map((x) -> x.split(/[-] w[/]c |[-]/).map((x) -> x.trim()))
+    
     retval = ''
-    for i in [0..wcs.length-1] by 2
-      if i > 0 then retval += lpad('', 81)
-      retval += "#{wcs[i]}--#{wcs[i+1]} (#{dates[i]}--#{dates[i+1]}), "
-    retval.replace(/, $/,'')
-
+    for range, i in ranges
+      if i > 0 then retval += lpad('', 56)
+      switch range.length
+        when 2
+          retval += "#{range[0]} (#{range[1]}),\n"
+        when 4
+          retval += "#{range[0]}--#{range[2]} (#{range[1]}--#{range[3]}),\n"
+    retval.replace(/,\n$/,'')
+    
   ## output results!  
   c = @getColorizer()
   tts = Array::slice.call(tts) ## explicit cast to Array
@@ -267,8 +271,8 @@ casper.run ->
       ).each (i, a) ->
         weeks = format_weeks(a['weeks'])
         casper.echo c.format \
-          "  #{rpad(a['code'],19)} #{lpad(a['day'],10)}"\
-          +" #{lpad(a['start'], 6)}--#{rpad(a['end'],6)}"\
+          "  #{rpad(a['code'],19)} #{a['day'][0..2]}"\
+          +" #{lpad(a['start'], 5)}--#{rpad(a['end'],5)}"\
           +" #{rpad(a['room'],16)} #{weeks}"
 
   casper.exit()
