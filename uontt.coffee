@@ -267,7 +267,10 @@ casper.run ->
       $(m['activities']).sort((x, y) ->
         ## order activities by day of week
         d = days.indexOf(x['day']) - days.indexOf(y['day'])
-        if d < 0 then -1 else if d > 0 then 1 else 0
+        if d < 0 then -1 else if d > 0 then 1 else
+          if x['start'] < y['start'] then -1
+          else if x['start'] > y['start'] then 1
+          else 0
       ).each (i, a) ->
         weeks = format_weeks(a['weeks'])
         casper.echo c.format \
