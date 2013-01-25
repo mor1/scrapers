@@ -1,7 +1,6 @@
 #!/usr/bin/env casperjs
 #
-# Scrape UoN timetable data given module codes.
-# TODO: retreive module details from module specification.
+# Scrape UoN timetable data and module details given module codes.
 #
 # Copyright (C) 2013 Richard Mortier <mort@cantab.net>. All Rights Reserved.
 #
