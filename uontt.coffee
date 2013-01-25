@@ -206,12 +206,12 @@ casper.start uri, ->
           if i != 0 
             tts.push tt
             tt = {}
-          
+
           title = $("table table b", table).first().text().split(/\s+/)
           tt['code'] = title[1]
           tt['title'] = title[2..].join(" ")
           tt['activities'] = []
-            
+
         when 1
           activities_seen = []
           rows = $("tr", this).slice(1)
