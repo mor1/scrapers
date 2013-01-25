@@ -231,82 +231,88 @@ casper.start uri, ->
               }
               tt['activities'].push activity
               activities_seen.push code
-    
+
     ## intermittently get a spurious footer, which will mean we already added
     ## the real tt so don't add the blank one just created
     if tt['title'] != '' then tts.push tt
     tts
   ), { tts }
 
-casper.then ->
-  ttds = []
-  for tt, i in tts
-    id = module_map[tt['code']]
-    yr = "000112"
-    url = "#{m_url}?#{m_url_params(yr, id)}"
-    @open(url).then ->
-      tt = @evaluate ((tt) ->
-        console.log $("html").html()
+format_weeks = (weeks) ->
+  ## attempt to format the "weeks" column reasonably.
+  ranges = weeks
+    .split(/,/)
+    .map((x) -> x.split(/[-] w[/]c |[-]/).map((x) -> x.trim()))
 
-        year = $("h3").text().replace(/Year\s+/, '')
-        tt['year'] = year
-        ps = $('p > b')
-        console.log ps.length, ps.each((i,p) ->
-          label = $(p).text().replace(/:\s+$/, '')
-          value = $(p).parents().first().text()
-            .replace(label, '')
-            .replace(/^:[\s\n]+/, '').replace(/[\s\n]+$/, '')
+  retval = ''
+  for range, i in ranges
+    if i > 0 then retval += lpad('', 56)
+    switch range.length
+      when 2
+        retval += "#{range[0]} (#{range[1]}),\n"
+      when 4
+        retval += "#{range[0]}--#{range[2]} (#{range[1]}--#{range[3]}),\n"
+  retval.replace(/,\n$/,'')
 
-          switch label
-            when 'Total Credits' then tt['credits'] = value
-            when 'Level' then tt['level'] = value.split(/\s+/)[1]
-            when 'Prerequisites' then tt['prereqs'] = value.replace(/[.]$/,'')
-            when 'Corequisites' then tt['coreqs'] = value.replace(/[.]$/,'')
-            when 'Convenor'
-              convenors = $(p).parents().first().html()
-                .split("<br>")[1..].map((x) -> x.trim())
-                .filter((x) -> x.length > 0)
-              tt['convenors'] = convenors
-            else console.log "L '"+label+"' value '"+value+"'"
-        )        
-        tt
-      ), { tt }
-      ## doh. "i" auto-index is 1-offset not 0-offset...
-      tts[i-1] = tt
-                        
+if do_details
+  casper.then ->
+    _tts = tts
+    tts = []
+    $(_tts).each (i, tt) ->
+      id = module_map[tt['code']]
+      yr = "000112"
+      url = "#{m_url}?#{m_url_params(yr, id)}"
+      casper.then ->
+        casper.open url
+
+      casper.then ->
+        tt = @evaluate ((tt, i) ->
+          year = $("h3").text().replace(/Year\s+/, '')
+          tt['year'] = year
+
+          ps = $('p > b').each (i,p) ->
+            label = $(p).text().replace(/:\s*$/, '')
+            value = $(p).parents().first().text()
+              .replace(label, '').replace(/\u00a0/g,'').replace(/\n/g,'')
+              .replace(/^:[\s\n]+/, '').replace(/[\s\n]+$/, '')
+
+            switch label
+              when 'Total Credits' then tt['credits'] = value
+              when 'Level' then tt['level'] = value.split(/\s+/)[1]
+              when 'Target Students'
+                tt['target'] = value
+              when 'Taught Semesters' then 0
+              when 'Prerequisites' then tt['prereqs'] = value.replace(/[.]$/,'')
+              when 'Corequisites' then tt['coreqs'] = value.replace(/[.]$/,'')
+              when 'Summary of Content' then tt['summary'] = value
+              when 'Method and Frequency of Class' then 0
+              when 'Method of Assessment' then 0
+              when 'Convenor'
+                convenors = $(p).parents().first().html()
+                  .split("<br>")[1..].map((x) -> x.trim())
+                  .filter((x) -> x.length > 0)
+                tt['convenors'] = convenors
+              when 'Education Aims' then tt['aims'] = value
+              when 'Learning Outcomes' then tt['outcomes'] = value
+              when 'Offering School' then tt['school'] = value
+              else console.log "L '"+label+"' value '"+value+"'"
+          tt
+        ), { tt, i }
+        tts.push tt
+
 casper.run ->
-  
-  format_weeks = (weeks) ->
-    ## attempt to format the "weeks" column reasonably.
-    ranges = weeks
-      .split(/,/)
-      .map((x) -> x.split(/[-] w[/]c |[-]/).map((x) -> x.trim()))
-    
-    retval = ''
-    for range, i in ranges
-      if i > 0 then retval += lpad('', 56)
-      switch range.length
-        when 2
-          retval += "#{range[0]} (#{range[1]}),\n"
-        when 4
-          retval += "#{range[0]}--#{range[2]} (#{range[1]}--#{range[3]}),\n"
-    retval.replace(/,\n$/,'')
-    
-  ## output results!  
   c = @getColorizer()
-  tts = Array::slice.call(tts) ## explicit cast to Array
- 
+  
   if not do_pretty ## raw JSON dump
     @echo JSON.stringify tts
-  else
-    ## pretty print for human consumption
+  else ## pretty print for human consumption
     days = [
       'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
       'Saturday', 'Sunday'
     ]
 
     $(tts).sort().each (i, m) ->
-      casper.echo c.format "#{m['code']} -- #{m['title']}", { bold: true }
+      @echo c.format "#{m['code']} -- #{m['title']}", { bold: true }
       $(m['activities']).sort((x, y) ->
         ## order activities by day of week
         d = days.indexOf(x['day']) - days.indexOf(y['day'])
@@ -316,9 +322,9 @@ casper.run ->
           else 0
       ).each (i, a) ->
         weeks = format_weeks(a['weeks'])
-        casper.echo c.format \
+        @echo c.format \
           "  #{rpad(a['code'],19)} #{a['day'][0..2]}"\
           +" #{lpad(a['start'], 5)}--#{rpad(a['end'],5)}"\
           +" #{rpad(a['room'],16)} #{weeks}"
 
-  casper.exit()
+  @exit()
