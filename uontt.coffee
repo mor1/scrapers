@@ -29,7 +29,7 @@ casper = require('casper').create({
   ],
 
   logLevel: "debug",
-  verbose: true,
+  verbose: false,
   viewportSize: { width: 1280, height: 640 },
     
   pageSettings: {
@@ -37,15 +37,6 @@ casper = require('casper').create({
     loadPlugins: false,
   }
 })
-
-## string helpers
-lpad = (s, mx) ->
-  while s.length < mx then s = " " + s
-  s
-
-rpad = (s, mx) ->
-  while s.length < mx then s += " "
-  s
 
 ## error handling
 casper.on 'page.error', (msg,ts) ->
@@ -64,6 +55,20 @@ casper.on 'remote.alert', (msg) -> @log '[remote-alert] #{msg}', "warn"
 dbg = (m) ->
   c = casper.getColorizer()
   console.error c.colorize "[debug] #{m}", "GREEN", 80
+
+## debugging
+# casper.on 'step.added', (r) -> console.log "step.added", r
+# casper.on 'step.complete', (r) -> console.log "step.complete", r
+# casper.on 'step.created', (r) -> console.log "step.create", r
+
+## string helpers
+lpad = (s, mx) ->
+  while s.length < mx then s = " " + s
+  s
+
+rpad = (s, mx) ->
+  while s.length < mx then s += " "
+  s
 
 ## handle options
 usage = ->
