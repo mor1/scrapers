@@ -310,7 +310,7 @@ casper.run ->
       'Saturday', 'Sunday'
     ]
 
-    $(tts).sort().each (i, m) ->
+    $(tts).sort().each (i, m) =>
       @echo c.format "#{m['code']} -- #{m['title']}", { bold: true }
       $(m['activities']).sort((x, y) ->
         ## order activities by day of week
@@ -319,7 +319,7 @@ casper.run ->
           if x['start'] < y['start'] then -1
           else if x['start'] > y['start'] then 1
           else 0
-      ).each (i, a) ->
+      ).each (i, a) =>
         weeks = format_weeks(a['weeks'])
         @echo c.format \
           "  #{rpad(a['code'],19)} #{a['day'][0..2]}"\
