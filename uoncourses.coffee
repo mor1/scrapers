@@ -17,7 +17,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place - Suite 330, Boston, MA 02111-1307, USA.
 
-require './jquery-1.9.0.js'
+require './jquery-1.9.1.min.js'
 system = require 'system'
 fs = require 'fs'
 utils = require 'utils'
@@ -28,14 +28,12 @@ utils = require 'utils'
 
 casper = require('casper').create({
   clientScripts:  [
-    './jquery-1.8.2.min.js'
+    './jquery-1.9.1.min.js'
   ],
 
   logLevel: "debug",
   verbose: false,
   viewportSize: { width: 1280, height: 640 },
-  userAgent: 'curl/7.21.4 (universal-apple-darwin11.0) libcurl/7.21.4 OpenSSL/0.9.8r zlib/1.2.5',
-  #'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)',
     
   pageSettings: {
     loadImages:  false,
@@ -80,7 +78,7 @@ crs_ids = casper.cli.args
 #   ## unfortunately a webkit bug (possibly being too keen in applying the
 #   ## standards) means that it inserts the closing </form> tag immediately so
 #   ## as not to include the table rows inside the form, meaning @fill fails.
-#   ## complete the form by hand in an eval therefore.
+#   ## complete the form by hand in an eval instead.
 #   # 
 #   # @fill 'form1', {
 #   #   "UserName": username,
