@@ -17,17 +17,18 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place - Suite 330, Boston, MA 02111-1307, USA.
 
-require './jquery-1.9.0.js'
+require './jquery-1.9.1.min.js'
 system = require 'system'
 fs = require 'fs'
 utils = require 'utils'
-  
-{module_map} = require './uonvars.coffee'
-{page_error, remote_alert, dbg, lpad, rpad} = require './libmort.coffee'
+
+{modules} = require './uonvars.coffee'
+{page_error, remote_alert, remote_message, dbg, lpad, rpad} =
+  require './libmort.coffee'
 
 casper = require('casper').create({
   clientScripts:  [
-    './jquery-1.8.2.min.js'
+    './jquery-1.9.1.min.js'
   ],
 
   logLevel: "debug",
@@ -41,19 +42,10 @@ casper = require('casper').create({
 })
 
 ## error handling
-casper.on 'page.error', (msg,ts) -> 
-  ## format remote page error per casperjs standard; based on casperjs code
-  c = @getColorizer()
-  console.error c.colorize "[remote] #{msg}", 'RED_BAR', 80
-  for t in ts
-    do (t) ->
-      m = fs.absolute t.file + ":" + c.colorize t.line, "COMMENT"
-      if t['function']
-        m += " in " + c.colorize t['function'], "PARAMETER"
-      console.error "  #{ m }"
-
-casper.on 'remote.alert', (msg) ->
-  @log '[remote-alert] #{msg}', "warn"
+casper.on 'page.error', (msg,ts) -> page_error msg, ts
+casper.on 'load.error', (msg,ts) -> page_error msg, ts
+casper.on 'remote.alert', (msg) -> remote_alert msg
+casper.on 'remote.message', (msg) -> remote_message msg
 
 ## debugging
 # casper.on 'step.added', (r) -> console.log "step.added", r
@@ -80,7 +72,7 @@ m_url_params = (yr, id) -> "year_id=#{yr}&crs_id=#{id}"
 
 ## setup uri
 mids = casper.cli.args.map((mcode) ->
-  module_map[mcode.toUpperCase()]).join("\n")
+  modules[mcode.toUpperCase()]).join("\n")
 uri = "#{tt_url};#{encodeURIComponent(mids)}?#{tt_url_params}"
 
 tts = []
@@ -147,7 +139,7 @@ if do_details
     _tts = tts
     tts = []
     $(_tts).each (i, tt) ->
-      id = module_map[tt['code']]
+      id = modules[tt['code']]
       yr = "000112"
       url = "#{m_url}?#{m_url_params(yr, id)}"
       casper.then ->
@@ -183,7 +175,7 @@ if do_details
               when 'Education Aims' then tt['aims'] = value
               when 'Learning Outcomes' then tt['outcomes'] = value
               when 'Offering School' then tt['school'] = value
-              else console.log "L '"+label+"' value '"+value+"'"
+              # else console.log "L '"+label+"' value '"+value+"'"
           tt
         ), { tt, i }
         tts.push tt

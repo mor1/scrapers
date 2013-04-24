@@ -18,7 +18,7 @@
 
 self = {}
 
-self.module_map = {
+self.modules = {
   "G50PRO": "018563" ,
   "G50WEB": "018561" ,
   "G51APS": "016658" ,
@@ -119,5 +119,30 @@ self.module_map = {
   "G64SPM": "013183" ,
   "G64SWE": "009760" ,
   }
-  
+
+self.dates = {
+  "2013/14": "000113", 
+  "2012/13": "000112", 
+  "2011/12": "000111", 
+}
+
+self.courses = {
+  ## ignore part-time and ordinary for now: same key, different value
+  "G400": "000319",
+  "G404": "021006",
+  "G4G7": "016004",
+  "G4G1": "022660",
+  "G601": "021912", ## what about G601 BSc Hons Software Systems (016001)?
+  "GN42": "000337",
+}  
+
+self.course_names = {
+  "G400": "Computer Science BSc",
+  "G404": "Computer Science MSci",
+  "G4G7": "Computer Science with AI BSc",
+  "G4G1": "Computer Science with AI MSci",
+  "G601": "Software Engineering BSc",
+  "GN42": "Computer Science and Management Studies BSc",
+}  
+
 module.exports = self
