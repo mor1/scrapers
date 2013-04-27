@@ -121,15 +121,27 @@ casper.then ->
         ## helper functions to walk stupid table-formatted data
         key = (sel, rows) ->
           $("td:contains(#{sel})", rows).parent("tr").first()
+
         colsof = (i, key) ->
           $("td table tbody tr td", $(key).nextAll().eq(i))
         rowsof = (i, key) ->
           $("td table tbody tr", $(key).nextAll().eq(i))
         partsof = (key) ->
           $("td table tbody", $(key).nextAll().eq(0))
+
         textof = (i, key) -> colsof(i, key).first().text()
         textofall = (i, key) ->
-          colsof(i, key).map((i, v) -> $(v).html()).toArray().join("|")
+          colsof(i, key)
+            .map((i, v) -> $(v).text())
+            .toArray()
+            .map((v, i) ->
+              v = """#{v.replace /[\u00A0\s]+$/g, ""}"""
+              if i == 0
+                """#{v}<ul>"""
+              else if v.length > 0
+                """<li>#{v}</li>""") 
+            .join("")
+            .concat("</ul>")
 
         ## first, the simple metadata
         rows = $("tbody tr")
