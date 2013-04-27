@@ -94,7 +94,7 @@ crs_ids = casper.cli.args
 saturn_spec_url = (yr, id) ->
   saturn_spec_base = "http://programmespec.nottingham.ac.uk/nottingham/asp/view_specification.asp"
   saturn_spec_params = (yr, id) -> "year_id=#{dates[yr]}&crs_id=#{courses[id]}"
-  "#{saturn_spec_base}?#{saturn_spec_params(yr, id)}"
+  "#{saturn_spec_base}?#{saturn_spec_params yr, id}"
 
 ## have to start before we can stack `then` handlers
 casper.start -> dbg "starting!"
@@ -106,7 +106,16 @@ casper.then ->
     url = "#{saturn_spec_url(year, crs_id)}"
     casper.then -> casper.open url
     casper.then ->
-      spec = @evaluate ->
+      spec = @evaluate ((modules, dates, year) ->
+        
+        module_url = (yr, id) ->
+          if (modules[id])? 
+            module_base = "http://modulecatalogue.nottingham.ac.uk/Nottingham/asp/moduledetails.asp"
+            module_params = (yr, id) -> "year_id=#{dates[yr]}&crs_id=#{modules[id]}"
+            "#{module_base}?#{module_params yr, id}"
+          else
+            null
+
         spec = { "url": $(location).attr('href') }
         
         ## helper functions to walk stupid table-formatted data
@@ -137,10 +146,11 @@ casper.then ->
           table = $("td table", rows).first()
           $("tr", table).slice(1,-1).each (i, m) ->
             [code, title, credits, comp, taught] =
-              $("td", m).map((i, v) -> $(v).text()).toArray()  
+              $("td", m).map((i, v) -> $(v).text()).toArray()
+
             retval.push({
               'code': code, 'title': title, 'credits': credits,
-              'comp': comp, 'taught': taught,
+              'comp': comp, 'taught': taught, 'url': module_url year, code
               })
           retval
 
@@ -160,6 +170,7 @@ casper.then ->
         spec['modules']['part_iii'] = partof parts, "Part III"
         
         spec
+      ), { modules, dates, year }
       specs.push spec
 
 casper.run ->
