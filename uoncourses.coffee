@@ -22,14 +22,15 @@ system = require 'system'
 fs = require 'fs'
 utils = require 'utils'
 
-{modules, dates, courses} = require './uonvars.coffee'
+{modules, dates, courses, themes, theme_codes} =
+  require './uonvars.coffee'
 {page_error, remote_alert, remote_message, dbg, lpad, rpad} =
   require './libmort.coffee'
 
 casper = require('casper').create({
   clientScripts:  [
-    './jquery-1.9.1.min.js'
-  ],
+    './jquery-1.9.1.min.js',
+    ],
 
   logLevel: "debug",
   verbose: false,
@@ -107,7 +108,7 @@ casper.then ->
     url = "#{saturn_spec_url(year, crs_id)}"
     casper.then -> casper.open url
     casper.then ->
-      spec = @evaluate ((modules, dates, year) ->
+      spec = @evaluate ((themes, modules, dates, year) ->
         
         module_url = (yr, id) ->
           if (modules[id])? 
@@ -127,8 +128,6 @@ casper.then ->
           $("td table tbody tr td", $(key).nextAll().eq(i))
         rowsof = (i, key) ->
           $("td table tbody tr", $(key).nextAll().eq(i))
-        partsof = (key) ->
-          $("td table tbody", $(key).nextAll().eq(0))
 
         textof = (i, key) -> colsof(i, key).first().text()
         textofall = (i, key) ->
@@ -153,37 +152,71 @@ casper.then ->
         spec['aims'] = textofall 1, key "Educational Aims", rows
 
         ## next, course modules
-        mods = (t, part) ->
-          retval = []
-          rows = $("td:contains(#{t})", $(part)).parent("tr").nextAll()
-          table = $("td table", rows).first()
-          $("tr", table).slice(1,-1).each (i, m) ->
+        entries = (table) ->
+          $("tr", table).slice(1,-1).map((i, m) ->
             [code, title, credits, comp, taught] =
               $("td", m).map((i, v) -> $(v).text()).toArray()
-
-            retval.push({
-              'code': code, 'title': title, 'credits': credits,
-              'comp': comp, 'taught': taught, 'url': module_url year, code
-              })
-          retval
-
-        partof = (parts, sel) ->
-          part = $("td:contains(#{sel})", parts).parent("tr").nextAll()
-          retval = {}
-          retval['o'] = mods "Restricted", part
-          retval['c'] = mods "Compulsory", part
-          retval
+            
+            {
+              code: code, title: title, credits: credits,
+              comp: comp, taught: taught, url: (module_url year, code),
+              theme: themes[code]
+            }
+          ).toArray()            
         
-        parts = partsof key "2 Course Structure", rows
+        mods = (sel, part) ->
+          row = $("tr:contains(#{sel})", part)
+          if not $(row).html()? then []
+          else
+            switch sel
+              when "Compulsory"
+                table = $(row).nextAll("tr").eq(1).find("table")[0]
+                entries table
+              
+              when "Alternative", "Restricted"
+                groups = $("""
+                  tr:contains(#{sel}) ~ tr:contains(Group:),
+                  tr:contains(#{sel}) ~ tr td table"""
+                  , part)
+                  .toArray()
+                                  
+                retval = []
+                oi = -1
+                gi = i = 0
+                while i < groups.length and oi < gi
+                  if i % 2 == 0 # group index
+                    oi = gi
+                    gi = $(groups[i]).text().match(/Group:(\d+)/)[1] * 1
+                      
+                  else # module table
+                    es = entries $(groups[i])
+                    retval.push es... # with the splat, does a concat
 
-        spec['modules'] = {}
-        spec['modules']['part_q'] = partof parts, "Qualifying Year"
-        spec['modules']['part_i'] = partof parts, "Part I"        
-        spec['modules']['part_ii'] = partof parts, "Part II"
-        spec['modules']['part_iii'] = partof parts, "Part III"
+                  i += 1
+                retval
+              
+              else
+                []
+
+        partof = (key, sel) ->
+          part = $(key).nextAll().eq(0).find("table:contains(#{sel})").first()
+          {
+            c: (mods "Compulsory", part),
+            o: (mods "Restricted", part),
+            a: (mods "Alternative", part)
+          }
+              
+        k = key "2 Course Structure", rows
+        spec['modules'] = {
+          part_q: (partof k, "Qualifying Year"),
+          part_i: (partof k, "Part I"),
+          part_ii: (partof k, "Part II"),
+          part_iii: (partof k, "Part III"),
+          part_pg: (partof k, "PG I")
+          }        
         
         spec
-      ), { modules, dates, year }
+      ), { themes, modules, dates, year }
       specs.push spec
 
 casper.run ->
