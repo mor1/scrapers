@@ -220,5 +220,9 @@ casper.then ->
       specs.push spec
 
 casper.run ->
-  @echo JSON.stringify specs
+  @echo JSON.stringify {
+    tool: '<a href="https://github.com/mor1/scrapers/blob/master/uoncourses.coffee">uoncourses.coffee</a>',
+    date: (new Date()).toString(),
+    courses: specs,
+    }
   @exit()
