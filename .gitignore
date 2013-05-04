@@ -1,4 +1,6 @@
+.DS_Store
 debug.*
 *.txt
 *.csv
 *.js
+courses.json
