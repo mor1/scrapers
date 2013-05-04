@@ -165,6 +165,150 @@ self.modules = {
   "N13426": "005069" ,
 }
 
+self.theme_codes = {
+  "SE": "Software Engineering",
+  "FCS": "Foundations of Computer Science",
+  "OSA": "Operating Systems and Architecture",
+  "P": "Programming",
+  "NCC": "Net-Centric Computing",
+  "AI": "Artificial Intelligence",
+  "HCI": "Human-Computer Interaction",
+  "MO": "Modelling and Optimisation",
+  "GV": "Graphics and Vision",
+  "IS": "Intelligent Systems",
+}
+
+self.themes = {  
+  "G50ALG": "FCS",
+  "G50PRO": "P",
+  "G50WEB": "NCC",
+  "G51APS": "FCS",
+  "G51CSA": "OSA",
+  "G51DBS": "SE",
+  "G51FSE": "SE",
+  "G51FUN": "P",
+  "G51IAI": "IS",
+  "G51MCS": "FCS",
+  "G51OOP": "P",
+  "G51PRG": "P",
+  "G51REQ": "HCI",
+  "G51UST": "OSA",
+  "G51WPS": "NCC",
+  "G52ADS": "FCS",
+  "G52AFP": "P",
+  "G52APR": "P",
+  "G52APT": "IS",
+  "G52CCN": "NCC",
+  "G52CON": "OSA",
+  "G52CPP": "P",
+  "G52GRP": "SE",
+  "G52GUI": "HCI",
+  "G52HCI": "HCI",
+  "G52IFR": "FCS",
+  "G52IIP": "GV",
+  "G52IMO": "MO",
+  "G52MAL": "FCS",
+  "G52PAS": "IS",
+  "G52PRO": "HCI",
+  "G52SEM": "SE",
+  "G53AOP": "P",
+  "G53ARS": "IS",
+  "G53ASD": "MO",
+  "G53BIO": "MO",
+  "G53CCT": "HCI",
+  "G53CLP": "MO",
+  "G53CMP": "P",
+  "G53COM": "FCS",
+  "G53DOC": "GV",
+  "G53DSM": "MO",
+  "G53DVA": "FCS",
+  "G53ELC": "NCC",
+  "G53FUZ": "IS",
+  "G53GRA": "GV",
+  "G53HCI": "HCI",
+  "G53KRR": "IS",
+  "G53MLE": "IS",
+  "G53NMD": "HCI",
+  "G53OPS": "OSA",
+  "G53ORO": "MO",
+  "G53SEC": "NCC",
+  "G53SQM": "SE",
+  "G53VIS": "GV",
+  "G54ACC": "NCC",
+  "G54ADB": "SE",
+  "G54ADM": "OSA",
+  "G54ALG": "P",
+  "G54ARC": "OSA",
+  "G54ASB": "MO",
+  "G54CCS": "NCC",
+  "G54CGA": "GV",
+  "G54CPL": "P",
+  "G54DET": "HCI",
+  "G54DIA": "IS",
+  "G54DMT": "MO",
+  "G54DTP": "FCS",
+  "G54FOP": "FCS",
+  "G54FPP": "FCS",
+  "G54GAM": "HCI",
+  "G54HPA": "IS",
+  "G54IHC": "HCI",
+  "G54INF": "FCS",
+  "G54MDP": "P",
+  "G54MET": "HCI",
+  "G54MSP": "GV",
+  "G54MXR": "HCI",
+  "G54NSC": "MO",
+  "G54ORM": "MO",
+  "G54OSW": "IS",
+  "G54PAL": "FCS",
+  "G54PDC": "OSA",
+  "G54PRG": "P",
+  "G54SAI": "IS",
+  "G54SIM": "MO",
+  "G54TCN": "NCC",
+  "G54UBI": "HCI",
+  "G54UIP": "MO",
+  "G54VIS": "GV",
+  "G54VSA": "GV",
+  "G64ADS": "FCS",
+  "G64DBS": "SE",
+  "G64FAI": "IS",
+  "G64ICP": "P",
+  "G64INC": "NCC",
+  "G64MIT": "HCI",
+  "G64OOS": "SE",
+  "G64SPM": "SE",
+  "G64SWE": "SE",
+
+  ## unthemed modules?
+  "G53CWO": "", # "and computing in the world at large (from scientific supercomputers, though PCs, tablets and phones to embedded computers, smart cards and RFID tags). Dependability of computer-based systems, and the nature and scope and management of risk in relation to such systems. Legal liability, data protection and intellectual property issues in computing. Social and cultural impacts of computing (e.g. through social networking), the portrayal of computers and computing in the popular media and in fiction and the ethical issues in computing. Sustainability and appropriate technology. The nature of professionalism, the role of professional bodies, and continuing professional development.
+  "G53IDA": "", # "individual project on a topic in computer science with emphasis in Artificial Intelligence. Each student has a supervisor who is a member of the academic staff. The topic can be any area of the subject which is of mutual interest to both the student and supervisor but should involve a substantial software development component. Guidelines on word length of dissertation are flexible to accommodate differing types of project work  undertaken.<br><br>
+  "G53IDE": "", # final dissertation allow students to choose an area of particular interest and study it in some detail. The nature of the work thus varies greatly depending upon the inclinations of the student. In general however these projects and their final dissertation represents the culmination of the students university career. It is difficult to describe the content of these projects and dissertation since each represents an individual piece of work. In general students spend Semesters 5 and 6 working on their projects, with the final dissertation normally to be handed in at the end of Semester 6. For UK students visiting European Institutions under the Erasmus exchange scheme, however, it is possible to work on their project abroad entirely in the sixth semester. They will also be expected to take one course to count 10 credits while abroad. It also means that they must take 70 credits worth of taught CS courses in semester 5. The dissertation should represent a deep and analytical piece of writing exploring key issues tackled during the work and can be submitted in English or the language of the visited. Students will work with academic members of staff on a one-to-one basis with regular weekly meetings to discuss progress and problems.
+  "G53IDJ": "", # individual project on a topic in computer science.  Each student has a supervisor who is a member of the academic staff.  The topic can be any area of the subject which is of mutual interest to both the student and supervisor.  Topics can range form purely theoretical studies to practical work building a system for some third party, although  most projects aim to provide a balance between the theoretical and practical aspects of the subject.  Guidelines on word length of dissertation are flexible to accommodate differing types of project work (e.g. balance between theory and practice) undertaken.
+  "G53IDS": "", # individual project on a topic in computer science.  Each student has a supervisor who is a member of the academic staff.  The topic can be any area of the subject which is of mutual interest to both the student and supervisor.  Topics can range from purely theoretical studies to practical work building a system for some third party, although most projects aim to provide a balance between the theoretical and practical aspects of the subject.  Guidelines on word length of dissertation are flexible to accommodate differing types of project work (e.g. balance between theory and practice) undertaken.<br><br>
+  "G53IDY": "", # individual project on a topic in computer science with emphasis on software systems. Each student has a supervisor who is a member of the academic staff. The topic can be any area of the subject which is of mutual interest to both the student and supervisor but should involve a substantial software development component. Guidelines on word length of dissertation are flexible to accommodate differing types of project work  undertaken.<br><br>
+  "G54AIT": "", # of empirical and/or library research. This research will be of some depth, and carried out under supervision of a member of academic staff. Where appropriate, projects may also be conducted in conjunction with an external organisation.
+  "G54CON": "", # module should have completed a paper presentation (or poster accompanied by paper in proceedings) that has undergone peer review at a national or international conference.  The student should submit the paper, accompanied by a 500 word commentary that describes their motivation for the paper, the reception of the paper/poster at the conference and further steps that might be taken within their PhD as a result of the work presented.
+  "G54MGA": "", # in Artificial Intelligence which is relevant to their programme of study and which builds on material studied. Students are responsible for forming a group of at least 2 students to work on this module together; if no group can be formed then module G54MIP must be taken instead. The topic must be agreed with the group, supervisor and Course Director. The project may be based on theoretical or empirical research or software development. The students must relate their project work to current research and/or professional practice. Agreed elements of the work must be conducted and coordinated as a group. In all cases suitable evaluation must be included, and relevant professional and ethical aspects considered. Collaboration with business, industry, and other outside bodies is encouraged. It is acceptable for a group project to collectively include both AI aspects to be undertaken by MSci Computer Science with AI students AND non-AI aspects to be undertaken by MSci Computer Science students.
+  "G54MGP": "", # in Computer Science which is relevant to their programme of study and which builds on material studied. Students are responsible for forming a group of at least 2 students to work on this module together; if no group can be formed then module G54MIP must be taken instead. The topic must be agreed with the group, supervisor and Course Director. The project may be based on theoretical or empirical research or software development. The students must relate their project work to current research and/or professional practice. Agreed elements of the work must be conducted and coordinated as a group. In all cases suitable evaluation must be included, and relevant professional and ethical aspects considered. Collaboration with business, industry, and other outside bodies is encouraged.
+  "G54MIA": "", # in Artificial Intelligence which is relevant to their programme of study and which builds on material studied. The topic must be agreed with the supervisor and Course Director. The project may be based on theoretical or empirical research or software development. The student must relate their project work to current research and/or professional practice. In all cases suitable evaluation must be included, and relevant professional and ethical aspects considered. Collaboration with business, industry, and other outside bodies is encouraged.
+  "G54MIP": "", # in Computer Science which is relevant to their programme of study and which builds on material studied. The topic must be agreed with the supervisor and Course Director. The project may be based on theoretical or empirical research or software development. The student must relate their project work to current research and/or professional practice. In all cases suitable evaluation must be included, and relevant professional and ethical aspects considered. Collaboration with business, industry, and other outside bodies is encouraged.
+  "G54PRO": "", # "of empirical and/or theoretical research in an appropriate strand of the degree. This research will be in-depth, and carried out under supervision of a member of academic staff. Where appropriate, projects may also be conducted in conjunction with an external organisation. Projects may or not involve a substantial software implementation.
+  "G54RP2": "", # "programme of continuous specially adapted and co-designed training. This is developed from foundational Graduate School Researcher Development Programme courses. These sessions will build on previous the module. Learning Outcomes are explicitly mapped to the Researcher Development Framework for the module as a whole and for individual sessions of the continuous training.
+  "G54RPS": "", # "of general and dedicated courses delivered by the graduate school.  Students will be required to attend a defined selection of graduate school courses that will provided them with a set of research and professional skills to support their PhD studies.
+  "G54SUM": "", # "module should have attended the DTC summer school.  They should provide a 500-1000 word commentary, accompanied if needed by supporting material, to demonstrate that they have been an active participant in the DTC summer school.  Students will also need to be able to demonstrate that they have been present at all sessions of an individual summer school.  Examples of activities that may demonstrate active participation include leadership of or active participation in a workshop, data collection during a summer school event or participation in networking activities during or as a direct result of the summer school.  This module will normally be completed by 2nd or 3rd year students, but may be completed by students after their first attendance at the summer school in year 1.
+  "G54URP": "", # "with staff of the DTC to develop a PhD research proposal during their first year in the centre.  This proposal will contain the following:    - Description of meetings, modules, seminars etc that motivated choice of PhD topics    - Formal record of at least 3 meetings with prospective supervisors    - Short literature review (approx 2000 words) describing current state of the art in selected area of study    - Proposed PhD aims and objectives    - Planned research activities for months 9-24 of registration described in detail    - Outline research activities for months 25-48 of registration
+  "G64DEC": "", # "project are to enhance understanding in an area of relevance to the degree course. The student is expected to develop skills in research including, planning research activities, empirical investigation, literature review, critical reflection, evaluation, oral and written communication, individual learning and time management. The project may be undertaken on any topic which is relevant to Digital Economy and which is agreed by the relevant Course Director. Collaboration with business, industry, and other outside bodies is encouraged.
+  "G64HCI": "", # "project are to enhance understanding in an area of relevance to the degree course. The student is expected to develop skills in research including, planning research activities, empirical investigation, literature review, critical reflection, evaluation, oral and written communication, individual learning and time management. The project may be undertaken on any topic which is relevant to Human-Computer Interaction and which is agreed by the relevant Course Director. Collaboration with business, industry, and other outside bodies is encouraged.
+  "G64PIT": "", # "of practical      research. This research will be of some depth, and carried out under the      supervision of a member of academic staff. Where appropriate, projects may also      be conducted in conjunction with an external organisation.
+  "G64PMI": "", # "of empirical, programming or library research in some depth under the supervision  of a member of academic staff. Where appropriate, projects may also be conducted in conjunction with an external organisation,
+  "G64PRE": "", # "is to provide the opportunity to undertake independent research into a topic appropriate to Computer Science Technology Transfer. In undertaking the project, you should draw on and extend material presented in the course. The project has several aims, beyond reinforcing information and methodology presented in the taught modules.   You will gain experience by:</p>  <ul>  <LI>addressing the challenges involved in developing the commercial potential of a technological advance;</LI>  <LI>develop communication skills relevant to the process of transferring technology to a commercial environment both by</li>  <ul class="nest1">  <li>making presentations to non technical audiences</li>  <LI>developing a report appropriate for a set of potential investors</LI>  <LI>otherwise communicating ideas to customers through meetings in groups or as individuals</li>  </ul>  </ul>  <p>Projects will further enhance experience in group work. </p>    Supervisors will be appointed the collaborating Schools.  An interim report will be required by mid-march outlining the direction of the project, which will commence in June.</p>
+
+  ## dead modules?
+  "G54999": "", # "of the NCC",
+  "G54IRS": "", # "Net-centric and HCI",
+}
+
 self.dates = {
   "2013/14": "000113", 
   "2012/13": "000112", 
@@ -174,20 +318,23 @@ self.dates = {
 self.courses = {
   ## ignore part-time and ordinary for now: same key, different value
   "G400": "000319",
+  "G402": "018566",
+  "G403": "018617",
   "G404": "021006",
-  "G4G7": "016004",
+  "G425": "012208",
+  "G440": "021339",
   "G4G1": "022660",
+  "G4G7": "016004",
+  # "G4H6": "",
+  "G507": "000328",
+  "G565": "012847", 
   "G601": "021912", ## what about G601 BSc Hons Software Systems (016001)?
+  "G900": "017726",
+  "GG14": "016139",
+  "GG41": "000334",
+  # "GH57": "",
   "GN42": "000337",
-}  
-
-self.course_names = {
-  "G400": "Computer Science BSc",
-  "G404": "Computer Science MSci",
-  "G4G7": "Computer Science with AI BSc",
-  "G4G1": "Computer Science with AI MSci",
-  "G601": "Software Engineering BSc",
-  "GN42": "Computer Science and Management Studies BSc",
+  # "GNK1": "",
 }  
 
 module.exports = self
