@@ -1,7 +1,7 @@
 .PHONY: clean
 
 clean:
-	$(RM) CitationsV4.utf8.txt debug.* 
+	$(RM) CitationsV4.utf8.txt debug.* courses.json
 	$(RM) $(patsubst %.coffee,%.js,$(wildcard *.coffee))
 
 sanitise:
