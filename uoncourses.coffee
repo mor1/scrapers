@@ -64,7 +64,8 @@ if casper.cli.args.length == 0 and Object.keys(casper.cli.options).length == 0
 year = casper.cli.get('year')
 username = casper.cli.get('username')
 password = casper.cli.get('password')
-crs_ids = casper.cli.args
+do_all = casper.cli.options['all']
+crs_ids = if do_all then Object.keys(courses) else casper.cli.args 
 
 ## the url you first thought of makes extensive use of frames...
 ## saturn_login = "https://saturnweb.nottingham.ac.uk/Nottingham/default.asp"
