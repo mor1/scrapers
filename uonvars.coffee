@@ -175,7 +175,6 @@ self.theme_codes = {
   "HCI": "Human-Computer Interaction",
   "MO": "Modelling and Optimisation",
   "GV": "Graphics and Vision",
-  "IS": "Intelligent Systems",
 }
 
 self.themes = {  
@@ -187,7 +186,7 @@ self.themes = {
   "G51DBS": "SE",
   "G51FSE": "SE",
   "G51FUN": "P",
-  "G51IAI": "IS",
+  "G51IAI": "AI",
   "G51MCS": "FCS",
   "G51OOP": "P",
   "G51PRG": "P",
@@ -197,7 +196,7 @@ self.themes = {
   "G52ADS": "FCS",
   "G52AFP": "P",
   "G52APR": "P",
-  "G52APT": "IS",
+  "G52APT": "AI",
   "G52CCN": "NCC",
   "G52CON": "OSA",
   "G52CPP": "P",
@@ -208,11 +207,11 @@ self.themes = {
   "G52IIP": "GV",
   "G52IMO": "MO",
   "G52MAL": "FCS",
-  "G52PAS": "IS",
+  "G52PAS": "AI",
   "G52PRO": "HCI",
   "G52SEM": "SE",
   "G53AOP": "P",
-  "G53ARS": "IS",
+  "G53ARS": "AI",
   "G53ASD": "MO",
   "G53BIO": "MO",
   "G53CCT": "HCI",
@@ -223,17 +222,17 @@ self.themes = {
   "G53DSM": "MO",
   "G53DVA": "FCS",
   "G53ELC": "NCC",
-  "G53FUZ": "IS",
+  "G53FUZ": "AI",
   "G53GRA": "GV",
   "G53HCI": "HCI",
-  "G53KRR": "IS",
-  "G53MLE": "IS",
+  "G53KRR": "AI",
+  "G53MLE": "AI",
   "G53NMD": "HCI",
   "G53OPS": "OSA",
   "G53ORO": "MO",
   "G53SEC": "NCC",
   "G53SQM": "SE",
-  "G53VIS": "GV",
+  "G53VAI": "GV",
   "G54ACC": "NCC",
   "G54ADB": "SE",
   "G54ADM": "OSA",
@@ -244,13 +243,13 @@ self.themes = {
   "G54CGA": "GV",
   "G54CPL": "P",
   "G54DET": "HCI",
-  "G54DIA": "IS",
+  "G54DIA": "AI",
   "G54DMT": "MO",
   "G54DTP": "FCS",
   "G54FOP": "FCS",
   "G54FPP": "FCS",
   "G54GAM": "HCI",
-  "G54HPA": "IS",
+  "G54HPA": "AI",
   "G54IHC": "HCI",
   "G54INF": "FCS",
   "G54MDP": "P",
@@ -259,20 +258,20 @@ self.themes = {
   "G54MXR": "HCI",
   "G54NSC": "MO",
   "G54ORM": "MO",
-  "G54OSW": "IS",
+  "G54OSW": "AI",
   "G54PAL": "FCS",
   "G54PDC": "OSA",
   "G54PRG": "P",
-  "G54SAI": "IS",
+  "G54SAI": "AI",
   "G54SIM": "MO",
   "G54TCN": "NCC",
   "G54UBI": "HCI",
   "G54UIP": "MO",
-  "G54VIS": "GV",
+  "G54VAI": "GV",
   "G54VSA": "GV",
   "G64ADS": "FCS",
   "G64DBS": "SE",
-  "G64FAI": "IS",
+  "G64FAI": "AI",
   "G64ICP": "P",
   "G64INC": "NCC",
   "G64MIT": "HCI",
@@ -317,24 +316,28 @@ self.dates = {
 
 self.courses = {
   ## ignore part-time and ordinary for now: same key, different value
-  "G400": "000319",
-  "G402": "018566",
-  "G403": "018617",
-  "G404": "021006",
-  # "G425": "012208", ## dipa requested removal
-  "G440": "021339",
-  "G4G1": "022660",
-  "G4G7": "016004",
-  # "G4H6": "",
-  "G507": "000328",
-  "G565": "012847", 
-  "G601": "021912", ## what about G601 BSc Hons Software Systems (016001)?
-  "G900": "017726",
-  # "GG14": "016139", ## dipa requested removal
-  "GG41": "000334",
-  # "GH57": "",
-  "GN42": "000337",
-  # "GNK1": "",
+
+  ## undergraduate
+  "G400": "000319", ## BSc (Hons) Computer Science
+  "G404": "021006", ## MSci (Hons) Computer Science
+
+  "G4G7": "016004", ## BSc (Hons) Computer Science with Artificial Intelligence
+  "G4G1": "022660", ## MSci (Hons) Computer Science with Artificial Intelligence
+
+  "G601": "021912", ## BSc (Hons) Software Engineering
+
+  "GG41": "000334", ## BSc (Hons) Mathematics and Computer Science
+  "GN42": "000337", ## BSc (Hons) Computer Science and Management Studies
+
+  ## postgraduate    
+  "G507": "000328", ## MSc Information Technology
+  "G565": "012847", ## MSc Management of Information Technology
+  
+  "G403": "018617", ## MSc Advanced Computing Science
+  "G900": "017726", ## MSc Scientific Computation
+  
+  "G440": "021339", ## MSc Human Computer Interaction
+  "G402": "018566", ## MSc Computer Science and Entrepreneurship
 }  
 
 module.exports = self
