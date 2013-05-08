@@ -3,4 +3,4 @@ debug.*
 *.txt
 *.csv
 *.js
-courses.json
+*.json
