@@ -218,6 +218,7 @@ self.themes = {
   "G53CLP": "MO",
   "G53CMP": "P",
   "G53COM": "FCS",
+  "G53CWO": "SE",
   "G53DOC": "GV",
   "G53DSM": "MO",
   "G53DVA": "FCS",
@@ -233,6 +234,7 @@ self.themes = {
   "G53SEC": "NCC",
   "G53SQM": "SE",
   "G53VAI": "GV",
+  "G53VIS": "GV",
   "G54ACC": "NCC",
   "G54ADB": "SE",
   "G54ADM": "OSA",
@@ -268,6 +270,7 @@ self.themes = {
   "G54UBI": "HCI",
   "G54UIP": "MO",
   "G54VAI": "GV",
+  "G54VIS": "GV",
   "G54VSA": "GV",
   "G64ADS": "FCS",
   "G64DBS": "SE",
@@ -280,7 +283,6 @@ self.themes = {
   "G64SWE": "SE",
 
   ## unthemed modules?
-  "G53CWO": "", # "and computing in the world at large (from scientific supercomputers, though PCs, tablets and phones to embedded computers, smart cards and RFID tags). Dependability of computer-based systems, and the nature and scope and management of risk in relation to such systems. Legal liability, data protection and intellectual property issues in computing. Social and cultural impacts of computing (e.g. through social networking), the portrayal of computers and computing in the popular media and in fiction and the ethical issues in computing. Sustainability and appropriate technology. The nature of professionalism, the role of professional bodies, and continuing professional development.
   "G53IDA": "", # "individual project on a topic in computer science with emphasis in Artificial Intelligence. Each student has a supervisor who is a member of the academic staff. The topic can be any area of the subject which is of mutual interest to both the student and supervisor but should involve a substantial software development component. Guidelines on word length of dissertation are flexible to accommodate differing types of project work  undertaken.<br><br>
   "G53IDE": "", # final dissertation allow students to choose an area of particular interest and study it in some detail. The nature of the work thus varies greatly depending upon the inclinations of the student. In general however these projects and their final dissertation represents the culmination of the students university career. It is difficult to describe the content of these projects and dissertation since each represents an individual piece of work. In general students spend Semesters 5 and 6 working on their projects, with the final dissertation normally to be handed in at the end of Semester 6. For UK students visiting European Institutions under the Erasmus exchange scheme, however, it is possible to work on their project abroad entirely in the sixth semester. They will also be expected to take one course to count 10 credits while abroad. It also means that they must take 70 credits worth of taught CS courses in semester 5. The dissertation should represent a deep and analytical piece of writing exploring key issues tackled during the work and can be submitted in English or the language of the visited. Students will work with academic members of staff on a one-to-one basis with regular weekly meetings to discuss progress and problems.
   "G53IDJ": "", # individual project on a topic in computer science.  Each student has a supervisor who is a member of the academic staff.  The topic can be any area of the subject which is of mutual interest to both the student and supervisor.  Topics can range form purely theoretical studies to practical work building a system for some third party, although  most projects aim to provide a balance between the theoretical and practical aspects of the subject.  Guidelines on word length of dissertation are flexible to accommodate differing types of project work (e.g. balance between theory and practice) undertaken.
