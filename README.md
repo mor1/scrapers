@@ -52,7 +52,8 @@ Examples:
 ### TODO
 
 + remove modules in green as currently deprecated
-
++ combine corresponding BSc/MSci courses appropriately
++ combine alternative and optional to just optional
 
 uontt
 -----
