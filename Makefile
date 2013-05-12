@@ -14,7 +14,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place - Suite 330, Boston, MA 02111-1307, USA.
 
-.PHONY: clean sanitise
+.PHONY: clean sanitise courses.json pgt.json ugt.json
 
 clean:
 	$(RM) CitationsV4.utf8.txt debug.* courses.json [up]gt.json
@@ -23,7 +23,7 @@ clean:
 sanitise:
 	iconv -f UTF-16 -t UTF-8 CitationsV4.txt >| CitationsV4.utf8.txt
 
-courses.json:
-	./uoncourses.coffee --year=2013/14 G507 G565 G403 G900 G440 G402 >| pgt.json
-	./uoncourses.coffee --year=2013/14 G400 G404 G4G7 G4G1 G601 GG41 GN42 >| ugt.json
+courses.json: ugt.json pgt.json
+	./uoncourses.coffee --year=2013/14 G507 G565 G403 G440 G402 >| pgt.json
+	./uoncourses.coffee --year=2013/14 G400 G404 G4G7 G4G1 G601 GN42 GG41 >| ugt.json
 	./uoncourses.coffee --year=2013/14 --all >| courses.json
