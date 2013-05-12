@@ -323,7 +323,6 @@ self.courses = {
   "G565": "012847", ## MSc Management of Information Technology
   
   "G403": "018617", ## MSc Advanced Computing Science
-  "G900": "017726", ## MSc Scientific Computation
   
   "G440": "021339", ## MSc Human Computer Interaction
   "G402": "018566", ## MSc Computer Science and Entrepreneurship
