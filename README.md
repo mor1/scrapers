@@ -54,6 +54,17 @@ Examples:
 + remove modules in green as currently deprecated
 + combine corresponding BSc/MSci courses appropriately
 
+
+uoncrsid
+--------
+
+Convert UoN module code to CRSID as used by Saturn.
+
+Example:
+
+    $ ./uoncrsid.coffee --year=2013/14 g54acc
+    
+
 uontt
 -----
 
