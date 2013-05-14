@@ -61,7 +61,7 @@ if casper.cli.args.length == 0 and Object.keys(casper.cli.options).length == 0
   usage()
 
 yr = casper.cli.get('year')
-year = if yr? then dates[yr] else dates['2012/13']
+year = if yr? then dates[yr] else dates['2013/14']
 codes = casper.cli.args 
 
 search_url =
