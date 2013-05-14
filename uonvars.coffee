@@ -129,6 +129,7 @@ self.modules = {
   "G54VIS": "024449" ,
 
   # engineering
+  "MM3RSS": "024285"
   "HG1FNC": "017984" ,
   "HG1M11": "005728" ,
   "MM4AMH": "014703",
@@ -136,6 +137,7 @@ self.modules = {
   "MM4HCI": "005509",
   "MM4HSD": "014701",
   "MM4PSW": "005499",
+  "MM4SEH": "024290",
   "MM4SHP": "014702",
   "MM4SIM": "020105",
   "MM4WOJ": "005498",
@@ -156,6 +158,7 @@ self.modules = {
   "N11603": "016347" ,
   "N11604": "016345" ,
   "N12001": "015538" ,
+  "N12107": "024305",
   "N12118": "008347" ,
   "N12205": "003644" ,
   "N12402": "003673" ,
@@ -193,6 +196,7 @@ self.modules = {
   "N14G02": "016823",
   "N14G03": "016824",
   "N14G05": "018121",
+  "N14G09": "024299",
 
   # maths
   "G11ACF": "012266",
@@ -217,6 +221,7 @@ self.modules = {
   "G13TSC": "021050",
   "G14PJA": "020905",
   "G14PJS": "020906",
+
 }
 
 self.theme_codes = {
@@ -363,23 +368,17 @@ self.courses = {
   ## undergraduate
   "G400": "000319", ## BSc (Hons) Computer Science
   "G404": "021006", ## MSci (Hons) Computer Science
-
   "G4G7": "016004", ## BSc (Hons) Computer Science with Artificial Intelligence
   "G4G1": "022660", ## MSci (Hons) Computer Science with Artificial Intelligence
-
   "G601": "021912", ## BSc (Hons) Software Engineering
-
-  "GG41": "000334", ## BSc (Hons) Mathematics and Computer Science
   "GN42": "000337", ## BSc (Hons) Computer Science and Management Studies
 
   ## postgraduate    
   "G507": "000328", ## MSc Information Technology
   "G565": "012847", ## MSc Management of Information Technology
-  
   "G403": "018617", ## MSc Advanced Computing Science
-  
-  "G440": "021339", ## MSc Human Computer Interaction
   "G402": "018566", ## MSc Computer Science and Entrepreneurship
+  "G440": "021339", ## MSc Human Computer Interaction
 }  
 
 module.exports = self
