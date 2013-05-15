@@ -19,8 +19,6 @@
 
 require './jquery-1.9.1.min.js'
 system = require 'system'
-fs = require 'fs'
-utils = require 'utils'
 
 {modules} = require './uonvars.coffee'
 {page_error, remote_alert, remote_message, dbg, lpad, rpad} =
@@ -63,6 +61,7 @@ if casper.cli.args.length == 0 and Object.keys(casper.cli.options).length == 0
 
 do_pretty = casper.cli.options['pretty']
 do_details = casper.cli.options['details']
+do_all = casper.cli.options['all']
 
 ## globals
 tt_url = "http://uiwwwsci01.ad.nottingham.ac.uk:8003/reporting/Spreadsheet;module;id"
@@ -71,68 +70,57 @@ m_url = "http://modulecatalogue.nottingham.ac.uk/Nottingham/asp/moduledetails.as
 m_url_params = (yr, id) -> "year_id=#{yr}&crs_id=#{id}"
 
 ## setup uri
-mids = casper.cli.args.map((mcode) ->
-  modules[mcode.toUpperCase()]).join("\n")
-uri = "#{tt_url};#{encodeURIComponent(mids)}?#{tt_url_params}"
+ms = if not do_all then casper.cli.args else $.map(modules, (i,e) -> e)
+uris = ms.map ((m,i) ->
+  crsid = modules[m.toUpperCase()]
+  "#{tt_url};#{crsid}?#{tt_url_params}"  
+  )
 
 tts = []
-casper.start uri, ->
-  ## fetch and parse timetable page
-  tts = @evaluate ((tts) ->
-    tt = {}
-    $("body > table").each (i,table) ->
-      switch i % 4
-        when 0
-          if i != 0 
-            tts.push tt
-            tt = {}
+casper.start -> dbg "starting!"
+casper.then ->
+  $(uris).each (i, uri) ->
+    ## fetch and parse timetable page
+    casper.then -> casper.open uri
+    casper.then ->
+      tt = @evaluate (() ->
+        tt = {}
+        $("body > table").each (i,table) ->
+          switch i % 4
+            when 0
+              if i != 0 then break
 
-          title = $("table table b", table).first().text().split(/\s+/)
-          tt['code'] = title[1]
-          tt['title'] = title[2..].join(" ")
-          tt['activities'] = []
+              title = $("table table b", table).first().text().split(/\s+/)
+              tt['code'] = title[1]
+              tt['title'] = title[2..].join(" ")
+              tt['activities'] = []
 
-        when 1
-          activities_seen = []
-          rows = $("tr", this).slice(1)
-          rows.each (i,row) ->
-            cells = $("td", this)
-            code = $(cells[0]).text()
-            if $.inArray(code, activities_seen) < 0
-              activity = {
-                'code': code,
-                'type': $(cells[1]).text(),
-                'size': $(cells[2]).text(),
-                'day': $(cells[4]).text(),
-                'start': $(cells[5]).text(),
-                'end': $(cells[6]).text(),
-                'room': $(cells[8]).text(),
-                'weeks': $(cells[12]).text()
-              }
-              tt['activities'].push activity
-              activities_seen.push code
+            when 1
+              activities_seen = []
+              rows = $("tr", this).slice(1)
+              rows.each (i,row) ->
+                cells = $("td", this)
+                code = $(cells[0]).text()
+                if $.inArray(code, activities_seen) < 0
+                  activity = {
+                    'code': code,
+                    'type': $(cells[1]).text(),
+                    'size': $(cells[2]).text(),
+                    'day': $(cells[4]).text(),
+                    'start': $(cells[5]).text(),
+                    'end': $(cells[6]).text(),
+                    'room': $(cells[8]).text(),
+                    'weeks': $(cells[12]).text()
+                  }
+                  tt['activities'].push activity
+                  activities_seen.push code
 
-    ## intermittently get a spurious footer, which will mean we already added
-    ## the real tt so don't add the blank one just created
-    if tt['title'] != '' then tts.push tt
-    tts
-  ), { tts }
+        tt
+      )
 
-format_weeks = (weeks) ->
-  ## attempt to format the "weeks" column reasonably.
-  ranges = weeks
-    .split(/,/)
-    .map((x) -> x.split(/[-] w[/]c |[-]/).map((x) -> x.trim()))
-
-  retval = ''
-  for range, i in ranges
-    if i > 0 then retval += lpad('', 56)
-    switch range.length
-      when 2
-        retval += "#{range[0]} (#{range[1]}),\n"
-      when 4
-        retval += "#{range[0]}--#{range[2]} (#{range[1]}--#{range[3]}),\n"
-  retval.replace(/,\n$/,'')
+      ## intermittently get a spurious footer, which will mean we already
+      ## added the real tt so don't add the blank one just created
+      if tt['title'] != '' then tts.push tt
 
 if do_details
   casper.then ->
@@ -162,8 +150,10 @@ if do_details
               when 'Target Students'
                 tt['target'] = value
               when 'Taught Semesters' then 0
-              when 'Prerequisites' then tt['prereqs'] = value.replace(/[.]$/,'')
-              when 'Corequisites' then tt['coreqs'] = value.replace(/[.]$/,'')
+              when 'Prerequisites'
+                tt['prereqs'] = value.replace(/[.]$/,'')
+              when 'Corequisites'
+                tt['coreqs'] = value.replace(/[.]$/,'')
               when 'Summary of Content' then tt['summary'] = value
               when 'Method and Frequency of Class' then 0
               when 'Method of Assessment' then 0
@@ -185,7 +175,24 @@ casper.run ->
   
   if not do_pretty ## raw JSON dump
     @echo JSON.stringify tts
+  
   else ## pretty print for human consumption
+    format_weeks = (weeks) ->
+      ## attempt to format the "weeks" column reasonably.
+      ranges = weeks
+        .split(/,/)
+        .map((x) -> x.split(/[-] w[/]c |[-]/).map((x) -> x.trim()))
+
+      retval = ''
+      for range, i in ranges
+        if i > 0 then retval += lpad('', 56)
+        switch range.length
+          when 2
+            retval += "#{range[0]} (#{range[1]}),\n"
+          when 4
+            retval += "#{range[0]}--#{range[2]} (#{range[1]}--#{range[3]}),\n"
+      retval.replace(/,\n$/,'')
+      
     days = [
       'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
       'Saturday', 'Sunday'
