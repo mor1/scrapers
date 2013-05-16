@@ -151,12 +151,14 @@ if do_details
               .replace(/^:[\s\n]+/, '').replace(/[\s\n]+$/, '')
 
             switch label
-              when 'Total Credits' then tt['credits'] = value
+              when 'Total Credits'
+                tt['credits'] = value.replace(/:/g,'')*1
               when 'Level' then tt['level'] = value.split(/\s+/)[1]
               when 'Target Students'
                 tt['target'] = value
               when 'Taught Semesters' then 0
-              when 'Prerequisites'
+              when 'Prerequisites' 
+                # console.log $(p).parent().html()
                 tt['prereqs'] = value.replace(/[.]$/,'')
               when 'Corequisites'
                 tt['coreqs'] = value.replace(/[.]$/,'')
