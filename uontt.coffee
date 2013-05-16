@@ -182,7 +182,15 @@ casper.run ->
   c = @getColorizer()
   
   if not do_pretty ## raw JSON dump
-    @echo JSON.stringify tts
+    @echo JSON.stringify {
+      tool: """
+      <a href="https://github.com/mor1/scrapers/blob/master/uontt.coffee">
+        uontt.coffee
+      </a>
+      """,
+      date: (new Date()).toString(),
+      modules: tts,
+    }
   
   else ## pretty print for human consumption
     format_weeks = (weeks) ->
