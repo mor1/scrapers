@@ -69,19 +69,19 @@ do_pretty = casper.cli.options['pretty']
 do_details = casper.cli.options['details']
 do_all = casper.cli.options['all']
 
-## globals
-tt_url = "http://uiwwwsci01.ad.nottingham.ac.uk:8003/reporting/Spreadsheet;module;id"
-tt_url_params = "template=SWSCUST+Module+Spreadsheet&weeks=1-52"
-m_url = "http://modulecatalogue.nottingham.ac.uk/Nottingham/asp/moduledetails.asp"
-m_url_params = (yr, id) -> "year_id=#{yr}&crs_id=#{id}"
-
 ## setup uri
-ms = if not do_all then casper.cli.args else $.map(modules, (i,e) -> e)
+ms = if not do_all then casper.cli.args else Object.keys(modules)
 uris = ms.map ((m,i) ->
-  crsid = modules[m.toUpperCase()]
-  "#{tt_url};#{crsid}?#{tt_url_params}"  
+  u = "http://uiwwwsci01.ad.nottingham.ac.uk:8003/reporting/Spreadsheet;module;id"
+  p = "template=SWSCUST+Module+Spreadsheet&weeks=1-52"
+  "#{u};#{modules[m.toUpperCase()]}?#{p}"  
   )
 
+murl = (y, c) ->
+  u = "http://modulecatalogue.nottingham.ac.uk/Nottingham/asp/moduledetails.asp"
+  p = "year_id=#{y}&crs_id=#{modules[c]}"
+  "#{u}?#{p}"
+  
 tts = []
 casper.start -> dbg "starting!"
 casper.then ->
@@ -120,9 +120,11 @@ casper.then ->
                   }
                   tt['activities'].push activity
                   activities_seen.push code
-
+          
         tt
       )
+
+      tt['url'] = murl year, tt['code']
 
       ## intermittently get a spurious footer, which will mean we already
       ## added the real tt so don't add the blank one just created
@@ -133,9 +135,7 @@ if do_details
     _tts = tts
     tts = []
     $(_tts).each (i, tt) ->
-      id = modules[tt['code']]
-      yr = "000112"
-      url = "#{m_url}?#{m_url_params(yr, id)}"
+      url = murl year tt['code']
       casper.then ->
         casper.open url
 
