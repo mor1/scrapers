@@ -20,7 +20,7 @@
 require './jquery-1.9.1.min.js'
 system = require 'system'
 
-{modules} = require './uonvars.coffee'
+{modules, dates} = require './uonvars.coffee'
 {page_error, remote_alert, remote_message, dbg, lpad, rpad} =
   require './libmort.coffee'
 
@@ -52,13 +52,19 @@ casper.on 'remote.message', (msg) -> remote_message msg
 
 ## handle options
 usage = ->
-  casper.die "Usage: #{ system.args[3] } [--pretty] <modulecode>", 1
+  n = system.args[3]
+  casper.die """
+  Usage: #{n} [--pretty] [--all] [--details] [--year=<year:2012/13>] <modulecode>
+  """, 1
 
 casper.cli.drop("cli")
 casper.cli.drop("casper-path")
 if casper.cli.args.length == 0 and Object.keys(casper.cli.options).length == 0
   usage()
 
+year = casper.cli.get('year')
+year = if year of dates then dates[year] else dates['2012/13'] 
+  
 do_pretty = casper.cli.options['pretty']
 do_details = casper.cli.options['details']
 do_all = casper.cli.options['all']
