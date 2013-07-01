@@ -362,6 +362,8 @@ self.dates = {
   "2011/12": "000111", 
 }
 
+self.current_year = '2012/13'
+
 self.courses = {
   ## ignore part-time and ordinary for now: same key, different value
 

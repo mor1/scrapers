@@ -20,7 +20,7 @@
 require './jquery-1.9.1.min.js'
 system = require 'system'
 
-{modules, dates} = require './uonvars.coffee'
+{modules, dates, current_year} = require './uonvars.coffee'
 {page_error, remote_alert, remote_message, dbg, lpad, rpad} =
   require './libmort.coffee'
 
@@ -54,7 +54,7 @@ casper.on 'remote.message', (msg) -> remote_message msg
 usage = ->
   n = system.args[3]
   casper.die """
-  Usage: #{n} [--pretty] [--all] [--details] [--year=<year:2012/13>] <modulecode>
+  Usage: #{n} [--pretty] [--all] [--details] [--year=<year:#{current_year}>] <modulecode>
   """, 1
 
 casper.cli.drop("cli")
@@ -63,7 +63,8 @@ if casper.cli.args.length == 0 and Object.keys(casper.cli.options).length == 0
   usage()
 
 year = casper.cli.get('year')
-year = if year of dates then dates[year] else dates['2012/13'] 
+year = if year of dates then dates[year] else dates[current_year]
+port = if year == dates[current_year] then 8003 else 8004
   
 do_pretty = casper.cli.options['pretty']
 do_details = casper.cli.options['details']
@@ -72,7 +73,7 @@ do_all = casper.cli.options['all']
 ## setup uri
 ms = if not do_all then casper.cli.args else Object.keys(modules)
 uris = ms.map ((m,i) ->
-  u = "http://uiwwwsci01.ad.nottingham.ac.uk:8003/reporting/Spreadsheet;module;id"
+  u = "http://uiwwwsci01.ad.nottingham.ac.uk:#{port}/reporting/Spreadsheet;module;id"
   p = "template=SWSCUST+Module+Spreadsheet&weeks=1-52"
   "#{u};#{modules[m.toUpperCase()]}?#{p}"  
   )
