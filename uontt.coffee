@@ -71,8 +71,7 @@ year = if year of dates then dates[year] else dates[current_year]
 port = switch current_year
   when '2013/14' then 8004
   when '2012/13' then 8003
-  else
-    8004 ## for this year, anyway
+  else casper.die "only 2013/14 and 2012/12 are supported"
   
 do_pretty = casper.cli.options['pretty']
 do_details = casper.cli.options['details']
