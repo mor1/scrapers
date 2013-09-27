@@ -64,7 +64,15 @@ if casper.cli.args.length == 0 and Object.keys(casper.cli.options).length == 0
 
 year = casper.cli.get('year')
 year = if year of dates then dates[year] else dates[current_year]
-port = if year == dates[current_year] then 8003 else 8004
+## oh if only things were so simple. let's special case the world.
+#
+# port = if year == dates[current_year] then 8003 else 8004
+
+port = switch current_year
+  when '2013/14' then 8004
+  when '2012/13' then 8003
+  else
+    8004 ## for this year, anyway
   
 do_pretty = casper.cli.options['pretty']
 do_details = casper.cli.options['details']
