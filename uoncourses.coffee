@@ -158,9 +158,9 @@ casper.then ->
               $("td", m).map((i, v) -> $(v).text()).toArray()
             
             {
-              code: code, title: title, credits: credits,
-              comp: comp, taught: taught, url: (module_url year, code),
-              theme: themes[code]
+              code: code, title: title.replace(" and ", " & "),
+              credits: credits, comp: comp, taught: taught,
+              url: (module_url year, code), theme: themes[code]
             }
           ).toArray()            
         
