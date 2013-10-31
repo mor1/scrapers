@@ -155,12 +155,13 @@ casper.then ->
         entries = (table) ->
           $("tr", table).slice(1,-1).map((i, m) ->
             [code, title, credits, comp, taught] =
-              $("td", m).map((i, v) -> $(v).text()).toArray()
-            
+              $("td", m).map((i, v) -> $(v).text()).toArray()            
+
+            murl = module_url year, code
             {
               code: code, title: title.replace(" and ", " & "),
               credits: credits, comp: comp, taught: taught,
-              url: (module_url year, code), theme: themes[code]
+              url: murl, theme: themes[code],
             }
           ).toArray()            
         
