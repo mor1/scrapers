@@ -143,7 +143,7 @@ if do_details
     _tts = tts
     tts = []
     $(_tts).each (i, tt) ->
-      url = murl year tt['code']
+      url = murl year, tt['code']
       casper.then ->
         casper.open url
 
@@ -155,7 +155,8 @@ if do_details
           ps = $('p > b').each (i,p) ->
             label = $(p).text().replace(/:\s*$/, '')
             value = $(p).parents().first().text()
-              .replace(label, '').replace(/\u00a0/g,'').replace(/\n/g,'')
+              .replace(label, '').replace(/\u00a0/g,'').replace(/\u2019/g,"'")
+              .replace(/\n/g,'')
               .replace(/^:[\s\n]+/, '').replace(/[\s\n]+$/, '')
 
             switch label
@@ -166,10 +167,15 @@ if do_details
                 tt['target'] = value
               when 'Taught Semesters' then 0
               when 'Prerequisites' 
-                # console.log $(p).parent().html()
-                tt['prereqs'] = value.replace(/[.]$/,'')
+                table = $(p).parents().first().next().next()
+                values = $.map $("tbody > tr > td > a", table), (v,i) ->
+                  $(v).html()
+                tt['prereqs'] = values
               when 'Corequisites'
-                tt['coreqs'] = value.replace(/[.]$/,'')
+                table = $(p).parents().first().next().next()
+                values = $.map $("tbody > tr > td > a", table), (v,i) ->
+                  $(v).html()
+                tt['coreqs'] = values
               when 'Summary of Content' then tt['summary'] = value
               when 'Method and Frequency of Class' then 0
               when 'Method of Assessment' then 0
