@@ -17,7 +17,8 @@
 .PHONY: clean sanitise courses.json pgt.json ugt.json
 
 clean:
-	$(RM) CitationsV4.utf8.txt debug.* courses.json [up]gt.json
+	$(RM) CitationsV4.utf8.txt debug.*
+	$(RM) tt.json courses.json [up]gt.json modules.json
 	$(RM) $(patsubst %.coffee,%.js,$(wildcard *.coffee))
 
 sanitise:
