@@ -35,7 +35,7 @@ casper = require('casper').create({
   logLevel: "debug",
   verbose: false,
   viewportSize: { width: 1280, height: 640 },
-    
+
   pageSettings: {
     loadImages:  false,
     loadPlugins: false,
@@ -66,14 +66,14 @@ year = casper.cli.get('year')
 username = casper.cli.get('username')
 password = casper.cli.get('password')
 do_all = casper.cli.options['all']
-crs_ids = if do_all then Object.keys(courses) else casper.cli.args 
+crs_ids = if do_all then Object.keys(courses) else casper.cli.args
 
 ## the url you first thought of makes extensive use of frames...
 ## saturn_login = "https://saturnweb.nottingham.ac.uk/Nottingham/default.asp"
 
 ## the url you next thought of is actually unnecessary -- programme spec URLs
 ## are not protected by the SATURN login. wtf.
-# 
+#
 # saturn_login = "https://saturnweb.nottingham.ac.uk/Nottingham/asp/user_logon.asp"
 # casper.start saturn_login, ->
 
@@ -81,7 +81,7 @@ crs_ids = if do_all then Object.keys(courses) else casper.cli.args
 #   ## standards) means that it inserts the closing </form> tag immediately so
 #   ## as not to include the table rows inside the form, meaning @fill fails.
 #   ## complete the form by hand in an eval instead.
-#   # 
+#   #
 #   # @fill 'form1', {
 #   #   "UserName": username,
 #   #   "Password": password
@@ -109,9 +109,9 @@ casper.then ->
     casper.then -> casper.open url
     casper.then ->
       spec = @evaluate ((themes, modules, dates, year) ->
-        
+
         module_url = (yr, id) ->
-          if (modules[id])? 
+          if (modules[id])?
             module_base = "http://modulecatalogue.nottingham.ac.uk/Nottingham/asp/moduledetails.asp"
             module_params = (yr, id) -> "year_id=#{dates[yr]}&crs_id=#{modules[id]}"
             "#{module_base}?#{module_params yr, id}"
@@ -119,7 +119,7 @@ casper.then ->
             null
 
         spec = { "url": $(location).attr('href') }
-        
+
         ## helper functions to walk stupid table-formatted data
         key = (sel, rows) ->
           $("td:contains(#{sel})", rows).parent("tr").first()
@@ -139,7 +139,7 @@ casper.then ->
               if i == 0
                 """#{v}<ul>"""
               else if v.length > 0
-                """<li>#{v}</li>""") 
+                """<li>#{v}</li>""")
             .join("")
             .concat("</ul>")
 
@@ -155,7 +155,7 @@ casper.then ->
         entries = (table) ->
           $("tr", table).slice(1,-1).map((i, m) ->
             [code, title, credits, comp, taught] =
-              $("td", m).map((i, v) -> $(v).text()).toArray()            
+              $("td", m).map((i, v) -> $(v).text()).toArray()
 
             murl = module_url year, code
             {
@@ -163,8 +163,8 @@ casper.then ->
               credits: credits, comp: comp, taught: taught,
               url: murl, theme: themes[code],
             }
-          ).toArray()            
-        
+          ).toArray()
+
         mods = (sel, part) ->
           row = $("tr:contains(#{sel})", part)
           if not $(row).html()? then []
@@ -173,14 +173,14 @@ casper.then ->
               when "Compulsory"
                 table = $(row).nextAll("tr").eq(1).find("table")[0]
                 entries table
-              
+
               when "Alternative", "Restricted"
                 groups = $("""
                   tr:contains(#{sel}) ~ tr:contains(Group:),
                   tr:contains(#{sel}) ~ tr td table"""
                   , part)
                   .toArray()
-                                  
+
                 retval = []
                 oi = -1
                 gi = i = 0
@@ -188,14 +188,14 @@ casper.then ->
                   if i % 2 == 0 # group index
                     oi = gi
                     gi = $(groups[i]).text().match(/Group:(\d+)/)[1] * 1
-                      
+
                   else # module table
                     es = entries $(groups[i])
                     retval.push es... # with the splat, does a concat
 
                   i += 1
                 retval
-              
+
               else
                 []
 
@@ -206,7 +206,7 @@ casper.then ->
             o: (mods "Restricted", part),
             a: (mods "Alternative", part)
           }
-              
+
         k = key "2 Course Structure", rows
         spec['modules'] = {
           part_q: (partof k, "Qualifying Year"),
@@ -214,8 +214,8 @@ casper.then ->
           part_ii: (partof k, "Part II"),
           part_iii: (partof k, "Part III"),
           part_pg: (partof k, "PG I")
-          }        
-        
+          }
+
         spec
       ), { themes, modules, dates, year }
       specs.push spec
