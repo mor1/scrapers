@@ -32,7 +32,7 @@ casper = require('casper').create({
   logLevel: "debug",
   verbose: false,
   viewportSize: { width: 1280, height: 640 },
-    
+
   pageSettings: {
     loadImages:  false,
     loadPlugins: false,
@@ -72,7 +72,7 @@ port = switch current_year
   when '2013/14' then 8004
   when '2012/13' then 8003
   else casper.die "only 2013/14 and 2012/12 are supported"
-  
+
 do_pretty = casper.cli.options['pretty']
 do_details = casper.cli.options['details']
 do_all = casper.cli.options['all']
@@ -82,14 +82,14 @@ ms = if not do_all then casper.cli.args else Object.keys(modules)
 uris = ms.map ((m,i) ->
   u = "http://uiwwwsci01.ad.nottingham.ac.uk:#{port}/reporting/Spreadsheet;module;id"
   p = "template=SWSCUST+Module+Spreadsheet&weeks=1-52"
-  "#{u};#{modules[m.toUpperCase()]}?#{p}"  
+  "#{u};#{modules[m.toUpperCase()]}?#{p}"
   )
 
 murl = (y, c) ->
   u = "http://modulecatalogue.nottingham.ac.uk/Nottingham/asp/moduledetails.asp"
   p = "year_id=#{y}&crs_id=#{modules[c]}"
   "#{u}?#{p}"
-  
+
 tts = []
 casper.start -> dbg "starting!"
 casper.then ->
@@ -128,7 +128,7 @@ casper.then ->
                   }
                   tt['activities'].push activity
                   activities_seen.push code
-          
+
         tt
       )
 
@@ -166,7 +166,7 @@ if do_details
               when 'Target Students'
                 tt['target'] = value
               when 'Taught Semesters' then 0
-              when 'Prerequisites' 
+              when 'Prerequisites'
                 table = $(p).parents().first().next().next()
                 values = $.map $("tbody > tr > td > a", table), (v,i) ->
                   $(v).html()
@@ -194,7 +194,7 @@ if do_details
 
 casper.run ->
   c = @getColorizer()
-  
+
   if not do_pretty ## raw JSON dump
     @echo JSON.stringify {
       tool: """
@@ -205,7 +205,7 @@ casper.run ->
       date: (new Date()).toString(),
       modules: tts,
     }
-  
+
   else ## pretty print for human consumption
     format_weeks = (weeks) ->
       ## attempt to format the "weeks" column reasonably.
@@ -222,7 +222,7 @@ casper.run ->
           when 4
             retval += "#{range[0]}--#{range[2]} (#{range[1]}--#{range[3]}),\n"
       retval.replace(/,\n$/,'')
-      
+
     days = [
       'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
       'Saturday', 'Sunday'
