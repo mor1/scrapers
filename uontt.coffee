@@ -19,6 +19,7 @@
 
 require './jquery-1.9.1.min.js'
 system = require 'system'
+cc = require('colorizer').create('Colorizer')
 
 {modules, dates, current_year} = require './uonvars.coffee'
 {page_error, remote_alert, remote_message, dbg, lpad, rpad} =
@@ -29,8 +30,8 @@ casper = require('casper').create({
     './jquery-1.9.1.min.js'
   ],
 
-  logLevel: "debug",
-  verbose: false,
+  logLevel: "warning",
+  verbose: true,
   viewportSize: { width: 1280, height: 640 },
 
   pageSettings: {
@@ -54,7 +55,7 @@ casper.on 'remote.message', (msg) -> remote_message msg
 usage = ->
   n = system.args[3]
   casper.die """
-  Usage: #{n} [--pretty] [--all] [--details] [--year=<year:#{current_year}>] <modulecode>
+  Usage: #{n} [--json] [--all] [--details] [--year=<year:#{current_year}>] <modulecode>
   """, 1
 
 casper.cli.drop("cli")
@@ -73,7 +74,7 @@ port = switch current_year
   when '2012/13' then 8003
   else casper.die "only 2013/14 and 2012/12 are supported"
 
-do_pretty = casper.cli.options['pretty']
+do_json = casper.cli.options['json']
 do_details = casper.cli.options['details']
 do_all = casper.cli.options['all']
 
@@ -91,7 +92,7 @@ murl = (y, c) ->
   "#{u}?#{p}"
 
 tts = []
-casper.start -> dbg "starting!"
+casper.start -> @echo "starting!", "debug"
 casper.then ->
   $(uris).each (i, uri) ->
     ## fetch and parse timetable page
@@ -193,9 +194,7 @@ if do_details
         tts.push tt
 
 casper.run ->
-  c = @getColorizer()
-
-  if not do_pretty ## raw JSON dump
+  if do_json ## raw JSON dump
     @echo JSON.stringify {
       tool: """
       <a href="https://github.com/mor1/scrapers/blob/master/uontt.coffee">
@@ -215,7 +214,7 @@ casper.run ->
 
       retval = ''
       for range, i in ranges
-        if i > 0 then retval += lpad('', 56)
+        if i > 0 then retval += lpad('', 67)
         switch range.length
           when 2
             retval += "#{range[0]} (#{range[1]}),\n"
@@ -229,7 +228,7 @@ casper.run ->
     ]
 
     $(tts).sort().each (i, m) =>
-      @echo c.format "#{m['code']} -- #{m['title']}", { bold: true }
+      @echo cc.format "#{m['code']} -- #{m['title']}", { fg: "white", bold: true }
       $(m['activities']).sort((x, y) ->
         ## order activities by day of week
         d = days.indexOf(x['day']) - days.indexOf(y['day'])
@@ -239,9 +238,8 @@ casper.run ->
           else 0
       ).each (i, a) =>
         weeks = format_weeks(a['weeks'])
-        @echo c.format \
-          "  #{rpad(a['code'],19)} #{a['day'][0..2]}"\
-          +" #{lpad(a['start'], 5)}--#{rpad(a['end'],5)}"\
-          +" #{rpad(a['room'],16)} #{weeks}"
+        @echo "  #{rpad(a['code'],13)}  #{a['day'][0..1]}"\
+          +"  #{lpad(a['start'], 5)}--#{rpad(a['end'],5)}"\
+          +"  #{rpad(a['room'],15)}  #{weeks}"
 
   @exit()
