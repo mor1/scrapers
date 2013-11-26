@@ -236,7 +236,7 @@ self.theme_codes = {
   "PJ": "Projects",
 }
 
-self.themes = {  
+self.themes = {
   "G50ALG": "FCS",
   "G50PRO": "PR",
   "G50WEB": "NCC",
@@ -286,7 +286,7 @@ self.themes = {
   "G53GRA": "HCI",
   "G53HCI": "HCI",
   "G53IDA": "PJ",
-  "G53IDE": "PJ", 
+  "G53IDE": "PJ",
   "G53IDJ": "PJ",
   "G53IDS": "PJ",
   "G53IDY": "PJ",
@@ -357,9 +357,9 @@ self.themes = {
 }
 
 self.dates = {
-  "2013/14": "000113", 
-  "2012/13": "000112", 
-  "2011/12": "000111", 
+  "2013/14": "000113",
+  "2012/13": "000112",
+  "2011/12": "000111",
 }
 
 self.current_year = '2013/14'
@@ -375,12 +375,12 @@ self.courses = {
   "G601": "021912", ## BSc (Hons) Software Engineering
   "GN42": "000337", ## BSc (Hons) Computer Science and Management Studies
 
-  ## postgraduate    
+  ## postgraduate
   "G507": "000328", ## MSc Information Technology
   "G565": "012847", ## MSc Management of Information Technology
   "G403": "018617", ## MSc Advanced Computing Science
   "G402": "018566", ## MSc Computer Science and Entrepreneurship
   "G440": "021339", ## MSc Human Computer Interaction
-}  
+}
 
 module.exports = self
