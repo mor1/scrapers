@@ -36,10 +36,10 @@ self.page_error = (msg, ts) ->
 
 self.remote_alert = (msg) ->
   console.log colorizer.colorize "[remote-alert] #{msg}", "WARN"
-  
+
 self.remote_message = (msg) ->
   console.log colorizer.colorize "[remote] #{msg}", "WARN"
-  
+
 ## string helpers
 self.lpad = (s, mx) ->
   while s.length < mx then s = " " + s
