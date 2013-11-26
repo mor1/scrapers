@@ -18,28 +18,6 @@
 
 self = {} ## to make module exports easy
 
-colorizer = require('colorizer').create('Colorizer')
-
-## debugging
-self.dbg = (m) ->
-  console.log colorizer.colorize "[debug] #{m}", "COMMENT"
-
-self.page_error = (msg, ts) ->
-  ## format remote page error per casperjs standard; based on casperjs code
-  console.error colorizer.colorize "[remote] #{msg}", 'RED_BAR', 80
-  for t in ts
-    do (t) ->
-      m = fs.absolute t.file + ":" + colorizer.colorize t.line, "COMMENT"
-      if t['function']
-        m += " in " + colorizer.colorize t['function'], "PARAMETER"
-      console.error "  #{ m }"
-
-self.remote_alert = (msg) ->
-  console.log colorizer.colorize "[remote-alert] #{msg}", "WARN"
-
-self.remote_message = (msg) ->
-  console.log colorizer.colorize "[remote] #{msg}", "WARN"
-
 ## string helpers
 self.lpad = (s, mx) ->
   while s.length < mx then s = " " + s

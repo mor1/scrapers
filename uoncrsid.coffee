@@ -23,7 +23,6 @@ fs = require 'fs'
 utils = require 'utils'
 
 {dates} = require './uonvars.coffee'
-{page_error, remote_alert, remote_message, dbg} = require './libmort.coffee'
 
 casper = require('casper').create({
   clientScripts:  [
@@ -41,10 +40,10 @@ casper = require('casper').create({
 })
 
 ## error handling
-casper.on 'page.error', (msg,ts) -> page_error msg, ts
-casper.on 'load.error', (msg,ts) -> page_error msg, ts
-casper.on 'remote.alert', (msg) -> remote_alert msg
-casper.on 'remote.message', (msg) -> remote_message msg
+# casper.on 'page.error', (msg,ts) -> page_error msg, ts
+# casper.on 'load.error', (msg,ts) -> page_error msg, ts
+# casper.on 'remote.alert', (msg) -> remote_alert msg
+# casper.on 'remote.message', (msg) -> remote_message msg
 
 ## debugging
 # casper.on 'step.added', (r) -> console.log "step.added", r
