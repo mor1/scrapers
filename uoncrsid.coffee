@@ -33,7 +33,7 @@ casper = require('casper').create({
   logLevel: "debug",
   verbose: false,
   viewportSize: { width: 1280, height: 640 },
-    
+
   pageSettings: {
     loadImages:  false,
     loadPlugins: false,
@@ -62,11 +62,11 @@ if casper.cli.args.length == 0 and Object.keys(casper.cli.options).length == 0
 
 yr = casper.cli.get('year')
 year = if yr? then dates[yr] else dates['2013/14']
-codes = casper.cli.args 
+codes = casper.cli.args
 
 search_url =
   "http://modulecatalogue.nottingham.ac.uk/Nottingham/asp/main_search.asp"
-  
+
 ## have to start before we can stack `then` handlers
 casper.start -> dbg "starting!"
 
@@ -88,7 +88,7 @@ casper.then ->
     casper.then ->
       crsid = @evaluate ->
         ms = /[\\?&]crs_id=([^&#]*)/.exec($(location).attr('href'))
-        ms?[1] 
+        ms?[1]
       if crsid? then crsids[code] = crsid
 
 casper.run ->
