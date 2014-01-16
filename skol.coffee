@@ -27,7 +27,7 @@ casper = require('casper').create({
   logLevel: "debug",
   verbose: false,
   viewportSize: { width: 1280, height: 640 },
-    
+
   pageSettings: {
     loadImages:  false,
     loadPlugins: false,
@@ -58,6 +58,6 @@ casper.start uri, ->
     cites = $(entry).contents(".gs_fl").text().match("Cited by ([0-9]+)")[1]
     return { title: title, cites: cites, author: author }
     ), { author }
-    
+
 casper.run ->
   casper.exit()

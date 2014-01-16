@@ -18,7 +18,7 @@
 system = require 'system'
 fs = require 'fs'
 utils = require 'utils'
-  
+
 casper = require('casper').create({
   clientScripts:  [
     './jquery-1.8.2.min.js'
@@ -27,7 +27,7 @@ casper = require('casper').create({
   logLevel: "debug",
   verbose: true,
   viewportSize: { width: 1280, height: 640 },
-    
+
   pageSettings: {
     loadImages:  false,
     loadPlugins: false,
@@ -46,13 +46,13 @@ casper.on 'page.error', (msg,ts) ->
       if t['function']
         m += " in " + c.colorize t['function'], "PARAMETER"
       console.error "  #{ m }"
- 
+
 casper.on 'remote.alert', (msg) -> @log '[remote-alert] #{msg}', "warn"
-                                   
+
 dbg = (m) ->
   c = casper.getColorizer()
   console.error c.colorize "[debug] #{m}", "GREEN", 80
-                                 
+
 ## handle cli options
 usage = ->
   casper.die "Usage: #{ system.args[3] } [--name|--radec] <datafile>", 1
@@ -126,7 +126,7 @@ casper.then ->
 ## from http://coffeescriptcookbook.com/chapters/arrays/concatenating-arrays
 Array::merge = (other) -> Array::push.apply @, other
 
-targets = []        
+targets = []
 casper.then ->
   ## having extracted objname-imagelinks mapping, grab link urls
   re = /href=["](.*)["]/i
