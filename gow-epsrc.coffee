@@ -36,16 +36,9 @@ casper = require('casper').create({
   }
 })
 
-## error handling
-# {page_error, remote_alert, remote_message} = require './libmort.coffee'
-# casper.on 'page.error', (msg,ts) -> page_error msg, ts
-# casper.on 'load.error', (msg,ts) -> page_error msg, ts
-# casper.on 'remote.alert', (msg) -> remote_alert msg
-# casper.on 'remote.message', (msg) -> remote_message msg
-
 ## handle cli options
 usage = ->
-  casper.die "Usage: #{ system.args[3] } <grant-code>", 1
+  casper.die "Usage: #{ system.args[3] } <grant-codes...>", 1
 
 casper.cli.drop("cli")
 casper.cli.drop("casper-path")
