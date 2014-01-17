@@ -54,9 +54,11 @@ grants = if (not do_all) then casper.cli.args else []
 root = "http://gow.epsrc.ac.uk"
 
 ## entry point
+casper.echo "["
 if (not do_all)
-  grants = $(grants).map((i,e) -> "#{ root }/NGBOViewGrant.aspx?GrantRef=#{ e }")
-  casper.echo "["
+  grants = $(grants).map((i,e) ->
+    "#{ root }/NGBOViewGrant.aspx?GrantRef=#{ e }"
+  )
   casper.start -> true
 else
   casper.start "#{ root }/NGBOListResearchAreas.aspx", ->
@@ -143,7 +145,6 @@ casper.then ->
         date: (new Date()).toString(),
         data: data
       }
-
   )
 
 casper.run ->
