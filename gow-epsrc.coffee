@@ -15,6 +15,9 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place - Suite 330, Boston, MA 02111-1307, USA.
 
+## from http://coffeescriptcookbook.com/chapters/arrays/concatenating-arrays
+Array::merge = (other) -> Array::push.apply @, other
+
 require './jquery-2.0.3.min.js'
 system = require 'system'
 fs = require 'fs'
@@ -45,25 +48,43 @@ casper.cli.drop("casper-path")
 if casper.cli.args.length == 0 and Object.keys(casper.cli.options).length == 0
   usage()
 
-grants = casper.cli.args
+do_all = casper.cli.options['all']
+grants = if (not do_all) then casper.cli.args else []
+
 root = "http://gow.epsrc.ac.uk"
 
 ## entry point
-data = {}
+if (not do_all)
+  grants = $(grants).map((i,e) -> "#{ root }/NGBOViewGrant.aspx?GrantRef=#{ e }")
+  casper.echo "["
+  casper.start -> true
+else
+  casper.start "#{ root }/NGBOListResearchAreas.aspx", ->
+    areas = @evaluate (() ->
+      $('a[href^="NGBOChooseTTS.aspx"]').map((i,e) -> e.href)
+    )
 
-casper.start -> dbg "starting"
+    $(areas).each (i, u) ->
+      casper.thenOpen u, () ->
+        gs = @evaluate (() ->
+          $('a[href^="NGBOViewGrant.aspx"]').map((i,e) -> e.href).toArray()
+        )
+        grants.merge gs
+
 casper.then ->
-  $(grants).each( (i, grant) ->
-    uri = "#{ root }/NGBOViewGrant.aspx?GrantRef=#{ grant }"
-    casper.then -> casper.open uri
-    casper.then ->
+  $(grants).each((i, grant) ->
+    data = {}
+    casper.thenOpen grant, () ->
       [grantref, datum] = @evaluate (() ->
         grantref = $('span#lblGrantReference').text()
         title = $('span#lblTitle').text()
-        pi = $('a#hlPrincipalInvestigator').next('a').text()
+        pi = {
+            name: $('a#hlPrincipalInvestigator').next('a').text(),
+            uri: $('a#hlPrincipalInvestigator ~ a')[0].href
+          }
 
         cis = $('td:contains("Other Investigators")').next().find('td > a')
-            .map((i,e) -> {name: $(e).text().trim(), url:e.href})
+            .map((i,e) -> {name: $(e).text().trim(), uri:e.href})
             .toArray()
 
         partners = $('table[summary="partners"] td')
@@ -73,7 +94,7 @@ casper.then ->
         department = $('span#lblDepartment').text()
         organisation = {
             name: $('span#lblOrganisation').text(),
-            url: $('td:contains("Organisation Website") ~ td > a')[0].href
+            uri: $('td:contains("Organisation Website") ~ td > a')[0].href
           }
 
         scheme = $('span#lblAwardType').text()
@@ -114,12 +135,17 @@ casper.then ->
         ]
       ), {}
       data[grantref] = datum
+
+    casper.then ->
+      if (i != 0) then @echo ","
+      @echo JSON.stringify {
+        tool: '<a href="https://github.com/mor1/scrapers/blob/master/gow-epsrc.coffee">gow-epsrc.coffee</a>',
+        date: (new Date()).toString(),
+        data: data
+      }
+
   )
 
 casper.run ->
-  @echo JSON.stringify {
-    tool: '<a href="https://github.com/mor1/scrapers/blob/master/gow-epsrc.coffee">gow-epsrc.coffee</a>',
-    date: (new Date()).toString(),
-    data: data
-    }
+  @echo "]"
   @exit()
