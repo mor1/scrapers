@@ -45,7 +45,7 @@ if __name__ == '__main__':
             author = clean_author(line[2][:-2])
             print("%d\nTitle:'%s' | Author:%s" % (i, title, author))
 
-            p = subprocess.Popen(['./skol.coffee',
+            p = subprocess.Popen(['./skol-scrape.coffee',
                                   '%s' % (author,),
                                   '%s' % (title,)
                                   ],
