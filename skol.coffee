@@ -21,19 +21,44 @@ utils = require 'utils'
 
 casper = require('casper').create({
   clientScripts:  [
-    './jquery-1.8.2.min.js'
+    './jquery-2.0.3.min.js'
   ],
 
   logLevel: "debug",
-  verbose: false,
-  viewportSize: { width: 1280, height: 640 },
+  verbose: "true",
 
+  viewportSize: { width: 1280, height: 640 },
   pageSettings: {
     loadImages:  false,
-    loadPlugins: false,
-    userAgent: '''Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.79 Safari/537.4'''
-  }
+    loadPlugins: false
+  },
+
+  userAgent: '''Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.79 Safari/537.4'''
 })
+
+## error handling, debugging
+
+colorizer = require('colorizer').create('Colorizer')
+
+casper.on 'remote.alert', (msg) ->
+  @log colorizer.colorize "[remote-alert] #{msg}", "WARN_BAR"
+
+casper.on 'remote.message', (msg) ->
+  @log colorizer.colorize "[remote] #{msg}", "WARN_BAR"
+
+# casper.on 'page.error', (msg,ts) ->
+#   ## format remote page error per casperjs standard; based on casperjs code
+#   console.error colorizer.colorize "[remote] #{msg}", 'RED_BAR', 80
+#   for t in ts
+#     do (t) ->
+#       m = fs.absolute t.file + ":" + c.colorize t.line, "COMMENT"
+#       if t['function']
+#         m += " in " + c.colorize t['function'], "PARAMETER"
+#       console.error "  #{ m }"
+
+## debug logging
+dbg = (m) ->
+  casper.log colorizer.colorize "[debug] #{m}", "INFO_BAR"
 
 usage = ->
   casper.die "Usage: #{ system.args[3] } <author> <title>", 1
