@@ -24,8 +24,8 @@ casper = require('casper').create({
     './jquery-2.0.3.min.js'
   ],
 
-  logLevel: "debug",
-  verbose: "true",
+  logLevel: "error",
+  verbose: "false",
 
   viewportSize: { width: 1280, height: 640 },
   pageSettings: {
@@ -46,17 +46,12 @@ casper.on 'remote.alert', (msg) ->
 casper.on 'remote.message', (msg) ->
   @log colorizer.colorize "[remote] #{msg}", "WARN_BAR"
 
-# casper.on 'page.error', (msg,ts) ->
-#   ## format remote page error per casperjs standard; based on casperjs code
-#   console.error colorizer.colorize "[remote] #{msg}", 'RED_BAR', 80
-#   for t in ts
-#     do (t) ->
-#       m = fs.absolute t.file + ":" + c.colorize t.line, "COMMENT"
-#       if t['function']
-#         m += " in " + c.colorize t['function'], "PARAMETER"
-#       console.error "  #{ m }"
+# casper.on 'page.resource.received', (response) ->
+#   dbg response.status
 
-## debug logging
+# switch(error.substring(0, 1)){
+#        case '4'
+
 dbg = (m) ->
   casper.log colorizer.colorize "[debug] #{m}", "INFO_BAR"
 
