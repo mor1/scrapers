@@ -21,19 +21,18 @@ require './jquery-1.9.1.min.js'
 system = require 'system'
 cc = require('colorizer').create('Colorizer')
 
-{modules, dates, current_year} = require './uonvars.coffee'
-{page_error, remote_alert, remote_message, dbg, lpad, rpad} =
-  require './libmort.coffee'
+{modules, dates, lastyear, thisyear} = require './uonvars.coffee'
+{remotelog, dbg, lpad, rpad} = require './libmort.coffee'
 
 casper = require('casper').create({
   clientScripts:  [
-    './jquery-1.9.1.min.js'
+    './jquery-2.0.3.min.js'
   ],
 
   logLevel: "warning",
-  verbose: true,
-  viewportSize: { width: 1280, height: 640 },
+  verbose: false,
 
+  viewportSize: { width: 1280, height: 640 },
   pageSettings: {
     loadImages:  false,
     loadPlugins: false,
@@ -41,10 +40,10 @@ casper = require('casper').create({
 })
 
 ## error handling
-casper.on 'page.error', (msg,ts) -> page_error msg, ts
-casper.on 'load.error', (msg,ts) -> page_error msg, ts
-casper.on 'remote.alert', (msg) -> remote_alert msg
-casper.on 'remote.message', (msg) -> remote_message msg
+# casper.on 'page.error', (msg,ts) -> page_error msg, ts
+# casper.on 'load.error', (msg,ts) -> page_error msg, ts
+casper.on 'remote.alert', (msg) -> remotelog "alert", msg
+casper.on 'remote.message', (msg) -> remotelog "msg", msg
 
 ## debugging
 # casper.on 'step.added', (r) -> console.log "step.added", r
@@ -55,7 +54,7 @@ casper.on 'remote.message', (msg) -> remote_message msg
 usage = ->
   n = system.args[3]
   casper.die """
-  Usage: #{n} [--json] [--all] [--details] [--year=<year:#{current_year}>] <modulecode>
+  Usage: #{n} [--json] [--all] [--details] [--last-year] <modulecodes...>
   """, 1
 
 casper.cli.drop("cli")
@@ -63,16 +62,10 @@ casper.cli.drop("casper-path")
 if casper.cli.args.length == 0 and Object.keys(casper.cli.options).length == 0
   usage()
 
-year = casper.cli.get('year')
-year = if year of dates then dates[year] else dates[current_year]
-## oh if only things were so simple. let's special case the world.
-#
-# port = if year == dates[current_year] then 8003 else 8004
+lastyear = casper.cli.get('last-year')
+port = if lastyear then 8004 else 8003
 
-port = switch current_year
-  when '2013/14' then 8004
-  when '2012/13' then 8003
-  else casper.die "only 2013/14 and 2012/12 are supported"
+year = if lastyear then dates[lastyear] else dates[thisyear]
 
 do_json = casper.cli.options['json']
 do_details = casper.cli.options['details']
@@ -81,7 +74,7 @@ do_all = casper.cli.options['all']
 ## setup uri
 ms = if not do_all then casper.cli.args else Object.keys(modules)
 uris = ms.map ((m,i) ->
-  u = "http://uiwwwsci01.ad.nottingham.ac.uk:#{port}/reporting/Spreadsheet;module;id"
+  u = "http://uiwwwsci01.nottingham.ac.uk:#{port}/reporting/Spreadsheet;module;id"
   p = "template=SWSCUST+Module+Spreadsheet&weeks=1-52"
   "#{u};#{modules[m.toUpperCase()]}?#{p}"
   )
