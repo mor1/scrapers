@@ -4,7 +4,7 @@ Mort's Scraper Scripts
 Primarily  excuses to have a go with [CoffeeScript][coffee], [jQuery][], and [PhantomJS][], and later [CasperJS][].
 
 The current (1.9.1) minified version of [jQuery][] is included, under its own license.
- 
+
 Developed and run OSX 10.8 using [PhantomJS][] 1.9.0 and [CasperJS][] 1.0.2 installed through [Homebrew](http://mxcl.github.com/homebrew/). Mileage on other platforms may, of course, differ.
 
 You should obey Google's `robots.txt` file if and when you run these or any other scraper scripts.
@@ -63,10 +63,9 @@ Convert UoN module code to CRSID as used by Saturn.
 Example:
 
     $ ./uoncrsid.coffee --year=2013/14 g54acc
-    
+
 
 uontt
 -----
 
 __todo__
-
