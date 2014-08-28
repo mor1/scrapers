@@ -354,15 +354,17 @@ exports.themes = {
   "G64SWE": "SE",
 }
 
-self.dates = {
+exports.dates = {
+  "2014/15": "000114",
   "2013/14": "000113",
   "2012/13": "000112",
   "2011/12": "000111",
 }
 
-self.current_year = '2013/14'
+exports.thisyear = '2014/15'
+exports.lastyear = '2013/14'
 
-self.courses = {
+exports.courses = {
   ## ignore part-time and ordinary for now: same key, different value
 
   ## undergraduate
