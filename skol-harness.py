@@ -18,7 +18,7 @@
 import sys, subprocess, time
 
 def clean_author(author):
-    for c in ":\"'`)": 
+    for c in ":\"'`)":
         author = author.replace(c, "")
     names = author.split("(")
 
@@ -27,14 +27,14 @@ def clean_author(author):
     return author
 
 def clean_title(title):
-    for c in ":\"'`)": 
+    for c in ":\"'`)":
         title = title.replace(c, "")
 
     title = title.replace("(", "")
     return title
 
 if __name__ == '__main__':
-    
+
     start = time.time()
     with open(sys.argv[1]) as lines:
         i = 0
@@ -45,10 +45,10 @@ if __name__ == '__main__':
             author = clean_author(line[2][:-2])
             print("%d\nTitle:'%s' | Author:%s" % (i, title, author))
 
-            p = subprocess.Popen(['./skol.coffee', 
-                                  '%s' % (author,), 
+            p = subprocess.Popen(['./skol.coffee',
+                                  '%s' % (author,),
                                   '%s' % (title,)
-                                  ], 
+                                  ],
                                  stdout=subprocess.PIPE)
             print(p.communicate()[0].decode("utf-8"))
             # os.system('''./skol.coffee "%s" "%s"''' % (author, title))
