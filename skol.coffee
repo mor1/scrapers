@@ -77,19 +77,19 @@ goog_scrape = (author) ->
   entry = $("#gs_ccl > .gs_r").eq(0).contents(".gs_ri")
   title = $(entry).contents("h3.gs_rt").text()
   cites = $(entry).contents(".gs_fl").text().match("Cited by ([0-9]+)")[1]
-  return { title: title, cites: cites, authors: author }
+  return { title: $.trim(title), cites: $.trim(cites), authors: $.trim(author), venue: "" }
 
 msft_base_uri = "http://academic.research.microsoft.com/Search"
 msft_query = "query=author%3a%28#{author}%29%20#{title}"
 msft_uri = "#{msft_base_uri}?#{msft_query}"
 
 msft_scrape = (author) ->
-  entry = $("li.paper-item").contents()
-  console.log $("li.paper-item").html()
-  title = "TITLE"
-  cites = 0
-  authors = "AUTHORS"
-  return { title: title, cites: cites, authors: author }
+  entry = $("li.paper-item").eq(0)
+  title = $(entry).find("a#ctl00_MainContent_PaperList_ctl01_Title").text()
+  cites = $(entry).find("a#ctl00_MainContent_PaperList_ctl01_Citation").text().replace(/Citations: /g, '')
+  authors = $(entry).find(".content").text()
+  venue = $(entry).find(".conference").text().replace(/\n/g, '')
+  return { title: $.trim(title), cites: $.trim(cites), authors: $.trim(authors), venue: $.trim(venue) }
 
 sites = [
   ["GOOG", goog_uri, goog_scrape],
@@ -103,7 +103,7 @@ casper.then ->
     [ svc, uri, scrape_fn ] = site
     @thenOpen uri, () ->
       result = @evaluate scrape_fn, { author }
-      @echo "#{svc}, '#{result.title}', '#{result.authors}', #{result.cites}, '#{uri}'"
+      @echo "#{svc}, '#{result.title}', '#{result.authors}', #{result.cites}, '#{result.venue}', '#{uri}'"
 
 casper.run ->
   casper.exit()
