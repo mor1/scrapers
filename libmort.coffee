@@ -16,15 +16,19 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place - Suite 330, Boston, MA 02111-1307, USA.
 
-self = {} ## to make module exports easy
-
-## string helpers
-self.lpad = (s, mx) ->
+exports.lpad = (s, mx) ->
   while s.length < mx then s = " " + s
   s
 
-self.rpad = (s, mx) ->
+exports.rpad = (s, mx) ->
   while s.length < mx then s += " "
   s
 
-module.exports = self
+require = patchRequire(global.require)
+colorizer = require('colorizer').create('Colorizer')
+
+exports.remotelog = (typ, msg) ->
+  console.log colorizer.colorize "[remote-#{typ}] #{msg}", "WARN_BAR"
+
+exports.dbg = (msg) ->
+  console.log colorizer.colorize "[debug] #{msg}", "INFO_BAR"
