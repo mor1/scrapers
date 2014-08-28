@@ -70,19 +70,45 @@ if casper.cli.args.length == 0 and Object.keys(casper.cli.options).length == 0
   usage()
 
 ## setup uri
-author = encodeURI(casper.cli.args[0])
-title = encodeURI(casper.cli.args[1])
+author = encodeURIComponent(casper.cli.args[0])
+title = encodeURIComponent(casper.cli.args[1])
 usage() if (author == "" or title == "")
-uri = encodeURI("http://scholar.google.co.uk/scholar?q=#{title}+#{author}")
+
+goog_base_uri = "http://scholar.google.co.uk/scholar"
+goog_query = "as_q=#{title}&as_occt=title&as_sauthors=#{author}"
+goog_uri = "#{goog_base_uri}?#{goog_query}"
+
+goog_scrape = (author) ->
+  entry = $("#gs_ccl > .gs_r").eq(0).contents(".gs_ri")
+  title = $(entry).contents("h3.gs_rt").text()
+  cites = $(entry).contents(".gs_fl").text().match("Cited by ([0-9]+)")[1]
+  return { title: title, cites: cites, authors: author }
+
+msft_base_uri = "http://academic.research.microsoft.com/Search"
+msft_query = "query=author%3a%28#{author}%29%20#{title}"
+msft_uri = "#{msft_base_uri}?#{msft_query}"
+
+msft_scrape = (author) ->
+  entry = $("li.paper-item").contents()
+  console.log $("li.paper-item").html()
+  title = "TITLE"
+  cites = 0
+  authors = "AUTHORS"
+  return { title: title, cites: cites, authors: author }
+
+sites = [
+  ["GOOG", goog_uri, goog_scrape],
+  ["MSFT", msft_uri, msft_scrape]
+  ]
 
 ## go!
-casper.start uri, ->
-  @echo JSON.stringify @evaluate ((author) ->
-    entry = $("#gs_ccl > .gs_r").eq(0).contents(".gs_ri")
-    title = $(entry).contents("h3.gs_rt").text()
-    cites = $(entry).contents(".gs_fl").text().match("Cited by ([0-9]+)")[1]
-    return { title: title, cites: cites, author: author }
-    ), { author }
+casper.start -> dbg "starting!"
+casper.then ->
+  @each sites, (self, site) ->
+    [ svc, uri, scrape_fn ] = site
+    @thenOpen uri, () ->
+      result = @evaluate scrape_fn, { author }
+      @echo "#{svc}, '#{result.title}', '#{result.authors}', #{result.cites}, '#{uri}'"
 
 casper.run ->
   casper.exit()
