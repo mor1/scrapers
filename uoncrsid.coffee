@@ -19,20 +19,18 @@
 
 require './jquery-1.9.1.min.js'
 system = require 'system'
-fs = require 'fs'
-utils = require 'utils'
 
-{dates} = require './uonvars.coffee'
+{thisyear, lastyear, dates} = require './uonvars.coffee'
 
 casper = require('casper').create({
   clientScripts:  [
-    './jquery-1.9.1.min.js',
+    './jquery-2.0.3.min.js',
     ],
 
   logLevel: "debug",
   verbose: false,
-  viewportSize: { width: 1280, height: 640 },
 
+  viewportSize: { width: 1280, height: 640 },
   pageSettings: {
     loadImages:  false,
     loadPlugins: false,
@@ -52,7 +50,7 @@ casper = require('casper').create({
 
 ## handle options
 usage = ->
-  casper.die "Usage: #{ system.args[3] } <module-code>", 1
+  casper.die "Usage: #{ system.args[3] } [--year=<#{thisyear}] <modulecodes...>", 1
 
 casper.cli.drop("cli")
 casper.cli.drop("casper-path")
@@ -60,7 +58,7 @@ if casper.cli.args.length == 0 and Object.keys(casper.cli.options).length == 0
   usage()
 
 yr = casper.cli.get('year')
-year = if yr? then dates[yr] else dates['2013/14']
+year = if yr? then dates[yr] else dates[thisyear]
 codes = casper.cli.args
 
 search_url =
