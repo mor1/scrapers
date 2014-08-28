@@ -17,7 +17,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place - Suite 330, Boston, MA 02111-1307, USA.
 
-require './jquery-1.9.1.min.js'
+require './jquery-2.0.3.min.js'
 system = require 'system'
 cc = require('colorizer').create('Colorizer')
 
