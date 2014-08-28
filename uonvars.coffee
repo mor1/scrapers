@@ -16,9 +16,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place - Suite 330, Boston, MA 02111-1307, USA.
 
-self = {}
-
-self.modules = {
+exports.modules = {
   "G50PRO": "018563" ,
   "G50WEB": "018561" ,
   "G51APS": "016658" ,
@@ -224,7 +222,7 @@ self.modules = {
 
 }
 
-self.theme_codes = {
+exports.theme_codes = {
   "SE": "Software Engineering",
   "FCS": "Foundations of Computer Science",
   "OSA": "Operating Systems and Architecture",
@@ -236,7 +234,7 @@ self.theme_codes = {
   "PJ": "Projects",
 }
 
-self.themes = {
+exports.themes = {
   "G50ALG": "FCS",
   "G50PRO": "PR",
   "G50WEB": "NCC",
@@ -382,5 +380,3 @@ self.courses = {
   "G402": "018566", ## MSc Computer Science and Entrepreneurship
   "G440": "021339", ## MSc Human Computer Interaction
 }
-
-module.exports = self
