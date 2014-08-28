@@ -3,11 +3,9 @@ Mort's Scraper Scripts
 
 Primarily  excuses to have a go with [CoffeeScript][coffee], [jQuery][], and [PhantomJS][], and later [CasperJS][].
 
-The current (1.9.1) minified version of [jQuery][] is included, under its own license.
+Developed and run OSX using [PhantomJS][] and [CasperJS][] installed through [Homebrew](http://mxcl.github.com/homebrew/). Mileage on other platforms may, of course, differ.
 
-Developed and run OSX 10.8 using [PhantomJS][] 1.9.0 and [CasperJS][] 1.0.2 installed through [Homebrew](http://mxcl.github.com/homebrew/). Mileage on other platforms may, of course, differ.
-
-You should obey Google's `robots.txt` file if and when you run these or any other scraper scripts.
+Good manners suggests you should obey `robots.txt` files if and when you run these or any other scraper scripts. The law suggests that you should obey any terms and conditions that apply concerning websites and their data.
 
 [PhantomJS]: http://phantomjs.org/
 [CasperJS]: http://casperjs.org/
@@ -18,7 +16,11 @@ You should obey Google's `robots.txt` file if and when you run these or any othe
 libmort
 -------
 
-__todo__
+Some simple helper functions:
+
++ `lpad`, `rpad`: left/right padding of strings
++ `remotelog`: format assistance for remote strings
++ `dbg` format assistance
 
 
 ned-data
@@ -30,21 +32,23 @@ __todo__
 skol
 ----
 
+Citation data by screen scraping. Supports Google Scholar and Microsoft Academic.
+
 Example:
 
-    $ ./skol.coffee "r mortier" "magpie"
+    $ ./skol-scrape.coffee "r mortier" "magpie"
 
-### TODO
+Python 3 script as a simple harness to read input data from a file provided (read the code for the format):
 
-+ \[PDF]\[PDF] at the start of the title
-+ really need to check the title of the block and move to next if insufficiently good match
-+ subtitle not captured by scholar but is in initial entry
+    $ ./skol.py <input>
 
 
 uoncourses
 ----------
 
-Examples:
+Extract information from University of Nottingham course and module directories.
+
+Example:
 
     $ ./uoncourses.coffee --year=2013/14 --all >| courses.json
     $ ./uoncourses.coffee --year=2013/14 G404 >| g404.json
@@ -62,10 +66,14 @@ Convert UoN module code to CRSID as used by Saturn.
 
 Example:
 
-    $ ./uoncrsid.coffee --year=2013/14 g54acc
+    $ ./uoncrsid.coffee --year=2013/14 g54acc g54ccs
 
 
 uontt
 -----
 
-__todo__
+Extract information from University of Nottingham module timetable pages and, optionally, module catalogue (`--details`; rendered only to JSON though).
+
+Example:
+
+    $ ./uontt.coffee g54ccs g54acc
