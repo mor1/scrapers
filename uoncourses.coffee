@@ -17,17 +17,14 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place - Suite 330, Boston, MA 02111-1307, USA.
 
-require './jquery-1.9.1.min.js'
+require './jquery-2.0.3.min.js'
 system = require 'system'
-fs = require 'fs'
-utils = require 'utils'
-
 {modules, dates, courses, themes, theme_codes} = require './uonvars.coffee'
-{lpad, rpad} = require './libmort.coffee'
+{remotelog, dbg, thisyear} = require './libmort.coffee'
 
 casper = require('casper').create({
   clientScripts:  [
-    './jquery-1.9.1.min.js',
+    './jquery-2.0.3.min.js',
     ],
 
   logLevel: "debug",
@@ -43,8 +40,8 @@ casper = require('casper').create({
 ## error handling
 # casper.on 'page.error', (msg,ts) -> page_error msg, ts
 # casper.on 'load.error', (msg,ts) -> page_error msg, ts
-# casper.on 'remote.alert', (msg) -> remote_alert msg
-# casper.on 'remote.message', (msg) -> remote_message msg
+casper.on 'remote.alert', (msg) -> remotelog "alert", msg
+casper.on 'remote.message', (msg) -> remotelog "msg", msg
 
 ## debugging
 # casper.on 'step.added', (r) -> console.log "step.added", r
@@ -53,16 +50,17 @@ casper = require('casper').create({
 
 ## handle options
 usage = ->
-  casper.die "Usage: #{ system.args[3] } --year=<year> [course-ids...]", 1
+  casper.die "Usage: #{ system.args[3] } [--all] [--year=<2014/15>] [courseids...]", 1
 
 casper.cli.drop("cli")
 casper.cli.drop("casper-path")
 if casper.cli.args.length == 0 and Object.keys(casper.cli.options).length == 0
   usage()
 
-year = casper.cli.get('year')
-username = casper.cli.get('username')
-password = casper.cli.get('password')
+yr = casper.cli.get('year')
+year = if yr? then yr else thisyear
+# username = casper.cli.get('username')
+# password = casper.cli.get('password')
 do_all = casper.cli.options['all']
 crs_ids = if do_all then Object.keys(courses) else casper.cli.args
 
