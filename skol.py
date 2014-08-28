@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
             title = clean_title(line[5].strip())
             author = clean_author(line[2][:-2])
-            print("%d\nTitle:'%s' | Author:%s" % (i, title, author))
+            print("# %d | '%s' '%s'" % (i, author, title, ))
 
             p = subprocess.Popen(['./skol-scrape.coffee',
                                   '%s' % (author,),
@@ -51,7 +51,6 @@ if __name__ == '__main__':
                                   ],
                                  stdout=subprocess.PIPE)
             print(p.communicate()[0].decode("utf-8"))
-            # os.system('''./skol.coffee "%s" "%s"''' % (author, title))
 
     end = time.time()
     print("start =", time.ctime(start))

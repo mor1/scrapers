@@ -95,8 +95,8 @@ msft_scrape = (author) ->
   }
 
 sites = [
+  ["MSFT", msft_uri, msft_scrape],
   ["GOOG", goog_uri, goog_scrape],
-  ["MSFT", msft_uri, msft_scrape]
   ]
 
 ## go!
@@ -106,8 +106,8 @@ casper.then ->
     [ svc, uri, scrapefn ] = site
     @thenOpen uri, () ->
       rs = @evaluate scrapefn, { author }
-      @echo "#{author}, '#{title}', #{svc}, '#{uri}',
-        '#{rs.title}', '#{rs.authors}', #{rs.cites}, '#{rs.venue}'"
+      @echo "#{author} | '#{title}' | #{svc} | '#{uri}' |
+        '#{rs.title}' | '#{rs.authors}' | #{rs.cites} | '#{rs.venue}'"
 
 casper.run ->
   casper.exit()
