@@ -51,11 +51,12 @@ casper = require('casper').create({
 ## handle options
 
 usage = -> casper.die "Usage: #{ system.args[3] } <author> <title>", 1
-[author, title] = casper.cli.args
-usage() if not (author? and title?)
+[author_raw, title_raw...] = casper.cli.args
+usage() if not (author_raw? and title_raw?)
 
-author = encodeURIComponent(author)
-title = encodeURIComponent(title)
+author = encodeURIComponent(author_raw)
+title = encodeURIComponent(title_raw)
+# dbg "AUTHOR:'#{author}' TITLE:'#{title}'"
 
 ## setup uris and scrapers
 
@@ -95,7 +96,7 @@ msft_scrape = (author) ->
   }
 
 sites = [
-  ["MSFT", msft_uri, msft_scrape],
+##  ["MSFT", msft_uri, msft_scrape],
   ["GOOG", goog_uri, goog_scrape],
   ]
 
@@ -105,9 +106,11 @@ casper.then ->
   @each sites, (self, site) ->
     [ svc, uri, scrapefn ] = site
     @thenOpen uri, () ->
-      rs = @evaluate scrapefn, { author }
-      @echo "#{author} | '#{title}' | #{svc} | '#{uri}' |
-        '#{rs.title}' | '#{rs.authors}' | #{rs.cites} | '#{rs.venue}'"
+       rs = @evaluate scrapefn, { author }
+        @echo "'#{author_raw}' | '#{author}' | '#{title_raw}' | '#{title}' |"\
+          +" #{svc} | #{uri} |"\
+          +" '#{rs.title}' | '#{rs.authors}' | #{rs.cites} | '#{rs.venue}' |"\
+          +" '#{rs.citation}'"
 
 casper.run ->
   casper.exit()
