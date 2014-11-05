@@ -44,15 +44,10 @@ casper.on 'remote.alert', (msg) -> remotelog "alert", msg
 casper.on 'remote.message', (msg) -> remotelog "msg", msg
 casper.on 'remote.error', (msg) -> remotelog "error", msg
 
+last_response = -1
 casper.on 'page.resource.received', (response) ->
   dbg "#{response.status}, #{response.url}"
-#   switch response.status
-#     when 503
-#       # @capture "captcha.png"
-#       fs.write "captcha.html", @getHTML()
-#       # captcha = raw_input "captcha> "
-#       # @log "CAPTCHA: #{captcha}"
-#       # @fill "form[action='CaptchaRedirect']", { 'captcha': captcha }, true
+  last_response = response.status
 
 raw_input = (prompt) ->
   system.stdout.write "#{prompt}"
@@ -119,22 +114,35 @@ scrape = (outfile, errfile, author_raw, author, title_raw, title, oid) ->
       @thenOpen uri, () ->
         @capture "#{infile}-pngs/#{oid}.png"
         rs = @evaluate scrapefn, { author }
-        dbg "RS:'#{JSON.stringify(rs)}'"
+        dbg "LAST_RESPONSE:'#{last_response}' RS:'#{JSON.stringify(rs)}'"
         if not rs?
           fs.write errfile,
             "#{oid} | #{author_raw} | #{title_raw} | #{uri}\n", "a"
-          @waitForSelector 'img#recaptcha_challenge_image',
-            ( ->
+
+          switch last_response
+            when -1, 200
+              @waitForSelector 'img#recaptcha_challenge_image',
+                ( ->
+                  @wait 100, () ->
+                    @capture "captcha.png"
+                    captcha = raw_input "captcha> "
+                    @log "CAPTCHA: #{captcha}"
+                    @fill "form[method='get']",
+                      { 'recaptcha_response_field': captcha }, true
+                    ),
+                    ->,
+                    5000
+
+            when 503
               @capture "captcha.png"
-              captcha = raw_input "captcha> "
-              @log "CAPTCHA: #{captcha}"
-              @fill "form[method='get']",
-                { 'recaptcha_response_field': captcha }, true
-              ),
-              ->,
-              50000
+              captcha = raw_input "ipv4-captcha> "
+              @log "IPV4-CAPTCHA: #{captcha}"
+              @fill "form[action='CaptchaRedirect']", { 'captcha': captcha }, true
+              last_response = -1
+
         else
-          os = "#{oid}\t#{author}\t#{rs.title}\t#{svc}\t#{rs.wos}\t#{rs.cites}"
+          os = "#{oid}\t#{author_raw.trim()}\t#{title_raw.join('')}"\
+            +"\t#{author}\t#{rs.title}\t#{svc}\t#{rs.wos}\t#{rs.cites}"
           # os +=
           # "#{author_raw}\t#{title_raw}\t#{uri}\t#{rs.venue}\t#{rs.citation}"
           os += "\t#{(new Date).toISOString()}\n"
