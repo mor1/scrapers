@@ -24,13 +24,13 @@ casper = require('casper').create({
     './jquery-2.0.3.min.js'
   ],
 
-  logLevel: "error",
-  verbose: "false",
+  logLevel: "debug",
+  verbose: "true",
 
   viewportSize: { width: 1280, height: 640 },
   pageSettings: {
-    loadImages: false,
-    loadPlugins: false
+    loadImages: true,
+    loadPlugins: true
   },
 
   userAgent: '''Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.79 Safari/537.4'''
@@ -43,74 +43,104 @@ casper = require('casper').create({
 # casper.on 'remote.alert', (msg) -> remotelog "alert", msg
 # casper.on 'remote.message', (msg) -> remotelog "msg", msg
 
-# casper.on 'page.resource.received', (response) ->
-#   dbg response.status
-# switch(error.substring(0, 1)){
-#        case '4'
+casper.on 'page.resource.received', (response) ->
+  dbg "#{response.status}, #{response.url}"
+  switch response.status
+    when 503
+      # @capture "captcha.png"
+      fs.write "captcha.html", @getHTML()
+      # captcha = raw_input "captcha> "
+      # @log "CAPTCHA: #{captcha}"
+      # @fill "form[action='CaptchaRedirect']", { 'captcha': captcha }, true
 
-## handle options
+raw_input = (prompt) ->
+  system.stdout.write "#{prompt}"
+  system.stdin.readLine()
 
-usage = -> casper.die "Usage: #{ system.args[3] } <author> <title>", 1
-[author_raw, title_raw...] = casper.cli.args
-usage() if not (author_raw? and title_raw?)
+scrape = (errfile, author_raw, author, title_raw, title) ->
 
-author = encodeURIComponent(author_raw)
-title = encodeURIComponent(title_raw)
-# dbg "AUTHOR:'#{author}' TITLE:'#{title}'"
+  goog_base_uri = "http://scholar.google.co.uk/scholar"
+  [sn,fns...] = author.trim().replace(/[,.]/g,'').split(' ')
+  a = "#{fns.join("+")}+#{sn}"
+  dbg "TITLE:'#{title}'"
+  t = title.replace(/[ ]/g,'+')
+  goog_query = "as_q=#{t}&as_occt=title&as_sauthors='#{a}'"
+  goog_uri = "#{goog_base_uri}?#{goog_query}"
 
-## setup uris and scrapers
+  goog_scrape = (author) ->
+    entry = $("#gs_ccl > .gs_r").eq(0).contents(".gs_ri")
+    title = $(entry).contents("h3.gs_rt").text()
+    cites = $(entry).contents(".gs_fl").text().match("Cited by ([0-9]+)")[1]
+    {
+      title: $.trim(title)
+      cites: $.trim(cites)
+      authors: ""
+      venue: ""
+    }
 
-goog_base_uri = "http://scholar.google.co.uk/scholar"
-goog_query = "as_q=#{title}&as_occt=title&as_sauthors=#{author}"
-goog_uri = "#{goog_base_uri}?#{goog_query}"
+  msft_base_uri = "http://academic.research.microsoft.com/Search"
+  msft_query = "query=author%3a%28#{author}%29%20#{title}"
+  msft_uri = "#{msft_base_uri}?#{msft_query}"
 
-goog_scrape = (author) ->
-  entry = $("#gs_ccl > .gs_r").eq(0).contents(".gs_ri")
-  title = $(entry).contents("h3.gs_rt").text()
-  cites = $(entry).contents(".gs_fl").text().match("Cited by ([0-9]+)")[1]
-  {
-    title: $.trim(title)
-    cites: $.trim(cites)
-    authors: ""
-    venue: ""
-  }
+  msft_scrape = (author) ->
+    entry = $("li.paper-item").eq(0)
+    title = $(entry).find("a#ctl00_MainContent_PaperList_ctl01_Title").text()
+    cites = $(entry)
+      .find("a#ctl00_MainContent_PaperList_ctl01_Citation")
+      .text()
+      .replace(/Citations: /g, '')
+    authors = $(entry).find(".content").text()
+    venue = $(entry).find(".conference").text().replace(/\n/g, '')
+    {
+      title: $.trim(title)
+      cites: $.trim(cites)
+      authors: $.trim(authors)
+      venue: $.trim(venue)
+    }
 
-msft_base_uri = "http://academic.research.microsoft.com/Search"
-msft_query = "query=author%3a%28#{author}%29%20#{title}"
-msft_uri = "#{msft_base_uri}?#{msft_query}"
+  sites = [
+    # ["MSFT", msft_uri, msft_scrape],
+    ["GOOG", goog_uri, goog_scrape],
+    ]
 
-msft_scrape = (author) ->
-  entry = $("li.paper-item").eq(0)
-  title = $(entry).find("a#ctl00_MainContent_PaperList_ctl01_Title").text()
-  cites = $(entry)
-    .find("a#ctl00_MainContent_PaperList_ctl01_Citation")
-    .text()
-    .replace(/Citations: /g, '')
-  authors = $(entry).find(".content").text()
-  venue = $(entry).find(".conference").text().replace(/\n/g, '')
-  {
-    title: $.trim(title)
-    cites: $.trim(cites)
-    authors: $.trim(authors)
-    venue: $.trim(venue)
-  }
+  casper.then ->
+    @each sites, (self, site) ->
+      [ svc, uri, scrapefn ] = site
+      @thenOpen uri, () ->
+        rs = @evaluate scrapefn, { author }
+        try
+          fs.write outfile,
+            "'#{author_raw}' | '#{author}' | '#{title_raw}' | '#{title}' |"\
+            +" #{svc} | #{uri} |"\
+            +" '#{rs.title}' | '#{rs.authors}' | #{rs.cites} | '#{rs.venue}' |"\
+            +" '#{rs.citation}'", "a"
+        catch error
+          @log "ERROR: '#{error}'"
+          @log @page
+          fs.write errfile,
+            "#{author_raw} | #{title_raw} | #{uri} | #{error}\n", "a"
+          @capture "captcha.png"
+          fs.write "captcha.html", @getHTML()
 
-sites = [
-##  ["MSFT", msft_uri, msft_scrape],
-  ["GOOG", goog_uri, goog_scrape],
-  ]
+## handle inputs
+
+usage = -> casper.die "Usage: #{ system.args[3] } <inputs>", 1
+infile = casper.cli.args[0]
+inputs = fs.open(infile, "r").read()
+usage() if not inputs?
 
 ## go!
-casper.start -> dbg "starting!"
-casper.then ->
-  @each sites, (self, site) ->
-    [ svc, uri, scrapefn ] = site
-    @thenOpen uri, () ->
-       rs = @evaluate scrapefn, { author }
-        @echo "'#{author_raw}' | '#{author}' | '#{title_raw}' | '#{title}' |"\
-          +" #{svc} | #{uri} |"\
-          +" '#{rs.title}' | '#{rs.authors}' | #{rs.cites} | '#{rs.venue}' |"\
-          +" '#{rs.citation}'"
 
-casper.run ->
-  casper.exit()
+casper.start -> dbg "starting!"
+
+outfile = "#{infile}.out"
+try fs.remove outfile catch error
+errfile = "#{infile}.err"
+try fs.remove errfile catch error
+for input in (i for i in inputs.split("\n") when i isnt '')
+  [author_raw, title_raw...] = input.split("\t")
+  author = encodeURIComponent(author_raw.replace(/,/g,'').split(".")[0])
+  title = encodeURIComponent(title_raw)
+  scrape outfile, errfile, author_raw, author, title_raw, title
+
+casper.run -> casper.exit()
