@@ -117,7 +117,7 @@ scrape = (outfile, errfile, author_raw, author, title_raw, title, oid) ->
       [ svc, uri, scrapefn ] = site
       dbg "URI:'#{uri}'"
       @thenOpen uri, () ->
-        @capture "#{oid}.png"
+        @capture "#{infile}-pngs/#{oid}.png"
         rs = @evaluate scrapefn, { author }
         dbg "RS:'#{JSON.stringify(rs)}'"
         if not rs?
@@ -156,6 +156,8 @@ try fs.remove outfile catch error
 
 errfile = "#{infile}.err"
 try fs.remove errfile catch error
+
+fs.makeTree "#{infile}-pngs"
 
 stopwords = (ws) ->
   (w for w in ws.join(" ").split(" ") when w.toLowerCase() not in [
