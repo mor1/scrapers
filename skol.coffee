@@ -60,35 +60,25 @@ raw_input = (prompt) ->
 
 goog_scrape = (author) ->
   entry = $("#gs_ccl > .gs_r").eq(0).contents(".gs_ri")
-  if $(entry).length == 0
-    {
-      title: 'undefined'
-      cites: 'undefined'
-      wos: 'undefined'
-      authors: 'undefined'
-      venue: 'undefined'
-    }
-  else
+  if $(entry).length > 0
     title = $(entry).contents("h3.gs_rt").text()
     console.log "TITLE:'#{title}'"
 
     cites = $(entry).contents(".gs_fl").text().match("Cited by ([0-9]+)")
-    console.log "XXXXX #{cites}"
-    cites = if cites.length > 0 then cites[1]
+    cites = if cites?.length > 0 then cites[1]
     console.log "CITES:'#{cites}'"
 
     wos = $(entry).contents(".gs_fl").text().match("Web of Science: ([0-9]+)")
-    wos = if wos? then wos[1]
+    wos = if wos?.length > 0 then wos[1]
     console.log "WOS:'#{wos}'"
-    rv = {
+
+    {
       title: $.trim(title)
       cites: $.trim(cites)
       wos: $.trim(wos)
       authors: ""
       venue: ""
     }
-    console.log "RV.TITLE:'#{rv.title}'"
-    rv
 
 msft_scrape = (author) ->
   entry = $("li.paper-item").eq(0)
@@ -127,31 +117,28 @@ scrape = (outfile, errfile, author_raw, author, title_raw, title, oid) ->
       [ svc, uri, scrapefn ] = site
       dbg "URI:'#{uri}'"
       @thenOpen uri, () ->
-        @capture "page.png"
+        @capture "#{oid}.png"
         rs = @evaluate scrapefn, { author }
         dbg "RS:'#{JSON.stringify(rs)}'"
-        try
-          os = "#{oid}\t#{author}\t#{rs.title}\t#{svc}\t#{rs.wos}\t#{rs.cites}"
-          # os +=
-          # "#{author_raw}\t#{title_raw}\t#{uri}\t#{rs.venue}\t#{rs.citation}"
-          os += "\n"
-          fs.write outfile, os, "a"
-        catch error
-          @log "ERROR: '#{error}'"
+        if not rs?
           fs.write errfile,
-            "#{author_raw} | #{title_raw} | #{uri} | #{error}\n", "a"
-          @capture "captcha-pre.png"
+            "#{oid} | #{author_raw} | #{title_raw} | #{uri}\n", "a"
           @waitForSelector 'img#recaptcha_challenge_image',
             ( ->
-              @capture "captcha-post.png"
+              @capture "captcha.png"
               captcha = raw_input "captcha> "
               @log "CAPTCHA: #{captcha}"
               @fill "form[method='get']",
                 { 'recaptcha_response_field': captcha }, true
               ),
               ->,
-              10000
-
+              50000
+        else
+          os = "#{oid}\t#{author}\t#{rs.title}\t#{svc}\t#{rs.wos}\t#{rs.cites}"
+          # os +=
+          # "#{author_raw}\t#{title_raw}\t#{uri}\t#{rs.venue}\t#{rs.citation}"
+          os += "\t#{(new Date).toISOString()}\n"
+          fs.write outfile, os, "a"
 
 ## handle inputs
 
@@ -176,14 +163,14 @@ stopwords = (ws) ->
     ])
 
 casper.each (i for i in inputs.split("\n") when i isnt ''), (self, input) ->
-  @wait 1000, () ->
+  @wait 500, () ->
     [oid, author_raw, title_raw...] = input.split("\t")
     surname = author_raw.trim().replace(/[,.:]/g,'').split(' ')[0]
     author = encodeURIComponent("#{surname}")
 
     words = stopwords(title_raw).join(" ").replace(/[,.:]/g,'').trim()
-    dbg words
     title = encodeURIComponent(words)
+
     scrape outfile, errfile, author_raw, author, title_raw, title, oid
 
 casper.run -> casper.exit()
