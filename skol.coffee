@@ -171,14 +171,19 @@ errfile = "#{infile}.err"
 try fs.remove errfile catch error
 
 stopwords = (ws) ->
-  (w for w in ws.join(" ").split(" ") if w not in ["and", "for", "of"])
+  (w for w in ws.join(" ").split(" ") when w.toLowerCase() not in [
+    "and", "for", "of", "a", "the"
+    ])
 
 casper.each (i for i in inputs.split("\n") when i isnt ''), (self, input) ->
   @wait 1000, () ->
     [oid, author_raw, title_raw...] = input.split("\t")
-    sn = author_raw.trim().replace(/[,.]/g,'').split(' ')[0]
-    author = encodeURIComponent("#{sn}")
-    title = encodeURIComponent(stopwords(title_raw).join(" ").trim())
+    surname = author_raw.trim().replace(/[,.:]/g,'').split(' ')[0]
+    author = encodeURIComponent("#{surname}")
+
+    words = stopwords(title_raw).join(" ").replace(/[,.:]/g,'').trim()
+    dbg words
+    title = encodeURIComponent(words)
     scrape outfile, errfile, author_raw, author, title_raw, title, oid
 
 casper.run -> casper.exit()
