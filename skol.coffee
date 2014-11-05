@@ -57,13 +57,13 @@ raw_input = (prompt) ->
   system.stdout.write "#{prompt}"
   system.stdin.readLine()
 
-scrape = (errfile, author_raw, author, title_raw, title) ->
+scrape = (outfile, errfile, author_raw, author, title_raw, title) ->
 
   goog_base_uri = "http://scholar.google.co.uk/scholar"
   [sn,fns...] = author.trim().replace(/[,.]/g,'').split(' ')
   a = "#{fns.join("+")}+#{sn}"
   dbg "TITLE:'#{title}'"
-  t = title.replace(/[ ]/g,'+')
+  t = title.join("+").replace(/[ ]/g,'+')
   goog_query = "as_q=#{t}&as_occt=title&as_sauthors='#{a}'"
   goog_uri = "#{goog_base_uri}?#{goog_query}"
 
@@ -113,7 +113,7 @@ scrape = (errfile, author_raw, author, title_raw, title) ->
             "'#{author_raw}' | '#{author}' | '#{title_raw}' | '#{title}' |"\
             +" #{svc} | #{uri} |"\
             +" '#{rs.title}' | '#{rs.authors}' | #{rs.cites} | '#{rs.venue}' |"\
-            +" '#{rs.citation}'", "a"
+            +" '#{rs.citation}'\n", "a"
         catch error
           @log "ERROR: '#{error}'"
           @log @page
