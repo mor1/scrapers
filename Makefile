@@ -14,7 +14,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place - Suite 330, Boston, MA 02111-1307, USA.
 
-.PHONY: clean courses.json pgt.json ugt.json skol-prep-%
+.PHONY: clean courses.json pgt.json ugt.json
 
 clean:
 	$(RM) $(patsubst %.coffee,%.js,$(wildcard *.coffee))
@@ -31,14 +31,3 @@ ugt.json:
 
 pgt.json:
 	./uoncourses.coffee --year=$(YEAR) $(PGT)  >| data/pgt.json
-
-skol-prep-%:
-	cd data && \
-	cat $* |\
-	  sed -E 's/"//g; s/\([1-4]\)//' |\
-	  cut -f 3-4  |\
-	  split -l 50 -
-
-%.utf8.txt:
-	iconv -f UTF-16 -t UTF-8 $*.txt >| $@
-	dos2unix $@
