@@ -14,17 +14,31 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place - Suite 330, Boston, MA 02111-1307, USA.
 
-.PHONY: clean sanitise courses.json pgt.json ugt.json
+.PHONY: clean courses.json pgt.json ugt.json skol-prep-%
 
 clean:
-	$(RM) CitationsV4.utf8.txt debug.*
-	$(RM) tt.json courses.json [up]gt.json modules.json
 	$(RM) $(patsubst %.coffee,%.js,$(wildcard *.coffee))
+	$(RM) data/*.json data/x*
 
-sanitise:
-	iconv -f UTF-16 -t UTF-8 CitationsV4.txt >| CitationsV4.utf8.txt
+UGT = G400 G404 G4G7 G4G1 G601 GN42
+PGT = G507 G565 G403 G402 G440
+YEAR = 2014/15
+courses.json:
+	./uoncourses.coffee --year=$(YEAR) --all >| data/courses.json
 
-courses.json: ugt.json pgt.json
-	./uoncourses.coffee --year=2014/15 G507 G565 G403 G402 G440 >| pgt.json
-	./uoncourses.coffee --year=2014/15 G400 G404 G4G7 G4G1 G601 GN42 >| ugt.json
-	./uoncourses.coffee --year=2014/15 --all >| courses.json
+ugt.json:
+	./uoncourses.coffee --year=$(YEAR) $(UGT) >| data/ugt.json
+
+pgt.json:
+	./uoncourses.coffee --year=$(YEAR) $(PGT)  >| data/pgt.json
+
+skol-prep-%:
+	cd data && \
+	cat $* |\
+	  sed -E 's/"//g; s/\([1-4]\)//' |\
+	  cut -f 3-4  |\
+	  split -l 50 -
+
+%.utf8.txt:
+	iconv -f UTF-16 -t UTF-8 $*.txt >| $@
+	dos2unix $@
