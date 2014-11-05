@@ -27,7 +27,7 @@ casper = require('casper').create({
   logLevel: "debug",
   verbose: "true",
 
-  viewportSize: { width: 1280, height: 640 },
+  viewportSize: { width: 800, height: 600 },
   pageSettings: {
     loadImages: true,
     loadPlugins: true
@@ -40,63 +40,82 @@ casper = require('casper').create({
 {dbg, remotelog} = require './libmort.coffee'
 
 ## error handling, debugging
-# casper.on 'remote.alert', (msg) -> remotelog "alert", msg
-# casper.on 'remote.message', (msg) -> remotelog "msg", msg
+casper.on 'remote.alert', (msg) -> remotelog "alert", msg
+casper.on 'remote.message', (msg) -> remotelog "msg", msg
+casper.on 'remote.error', (msg) -> remotelog "error", msg
 
 casper.on 'page.resource.received', (response) ->
   dbg "#{response.status}, #{response.url}"
-  switch response.status
-    when 503
-      # @capture "captcha.png"
-      fs.write "captcha.html", @getHTML()
-      # captcha = raw_input "captcha> "
-      # @log "CAPTCHA: #{captcha}"
-      # @fill "form[action='CaptchaRedirect']", { 'captcha': captcha }, true
+#   switch response.status
+#     when 503
+#       # @capture "captcha.png"
+#       fs.write "captcha.html", @getHTML()
+#       # captcha = raw_input "captcha> "
+#       # @log "CAPTCHA: #{captcha}"
+#       # @fill "form[action='CaptchaRedirect']", { 'captcha': captcha }, true
 
 raw_input = (prompt) ->
   system.stdout.write "#{prompt}"
   system.stdin.readLine()
 
-scrape = (outfile, errfile, author_raw, author, title_raw, title) ->
-
-  goog_base_uri = "http://scholar.google.co.uk/scholar"
-  [sn,fns...] = author.trim().replace(/[,.]/g,'').split(' ')
-  a = "#{fns.join("+")}+#{sn}"
-  dbg "TITLE:'#{title}'"
-  t = title.join("+").replace(/[ ]/g,'+')
-  goog_query = "as_q=#{t}&as_occt=title&as_sauthors='#{a}'"
-  goog_uri = "#{goog_base_uri}?#{goog_query}"
-
-  goog_scrape = (author) ->
-    entry = $("#gs_ccl > .gs_r").eq(0).contents(".gs_ri")
-    title = $(entry).contents("h3.gs_rt").text()
-    cites = $(entry).contents(".gs_fl").text().match("Cited by ([0-9]+)")[1]
+goog_scrape = (author) ->
+  entry = $("#gs_ccl > .gs_r").eq(0).contents(".gs_ri")
+  if $(entry).length == 0
     {
+      title: 'undefined'
+      cites: 'undefined'
+      wos: 'undefined'
+      authors: 'undefined'
+      venue: 'undefined'
+    }
+  else
+    title = $(entry).contents("h3.gs_rt").text()
+    console.log "TITLE:'#{title}'"
+
+    cites = $(entry).contents(".gs_fl").text().match("Cited by ([0-9]+)")
+    console.log "XXXXX #{cites}"
+    cites = if cites.length > 0 then cites[1]
+    console.log "CITES:'#{cites}'"
+
+    wos = $(entry).contents(".gs_fl").text().match("Web of Science: ([0-9]+)")
+    wos = if wos? then wos[1]
+    console.log "WOS:'#{wos}'"
+    rv = {
       title: $.trim(title)
       cites: $.trim(cites)
+      wos: $.trim(wos)
       authors: ""
       venue: ""
     }
+    console.log "RV.TITLE:'#{rv.title}'"
+    rv
+
+msft_scrape = (author) ->
+  entry = $("li.paper-item").eq(0)
+  title = $(entry).find("a#ctl00_MainContent_PaperList_ctl01_Title").text()
+  cites = $(entry)
+    .find("a#ctl00_MainContent_PaperList_ctl01_Citation")
+    .text()
+    .replace(/Citations: /g, '')
+  authors = $(entry).find(".content").text()
+  venue = $(entry).find(".conference").text().replace(/\n/g, '')
+  {
+    title: $.trim(title)
+    cites: $.trim(cites)
+    wos: ''
+    authors: $.trim(authors)
+    venue: $.trim(venue)
+  }
+
+scrape = (outfile, errfile, author_raw, author, title_raw, title, oid) ->
+
+  goog_base_uri = "http://scholar.google.co.uk/scholar"
+  goog_query = "as_q=#{title}&as_occt=title&as_sauthors=#{author}"
+  goog_uri = "#{goog_base_uri}?#{goog_query}"
 
   msft_base_uri = "http://academic.research.microsoft.com/Search"
   msft_query = "query=author%3a%28#{author}%29%20#{title}"
   msft_uri = "#{msft_base_uri}?#{msft_query}"
-
-  msft_scrape = (author) ->
-    entry = $("li.paper-item").eq(0)
-    title = $(entry).find("a#ctl00_MainContent_PaperList_ctl01_Title").text()
-    cites = $(entry)
-      .find("a#ctl00_MainContent_PaperList_ctl01_Citation")
-      .text()
-      .replace(/Citations: /g, '')
-    authors = $(entry).find(".content").text()
-    venue = $(entry).find(".conference").text().replace(/\n/g, '')
-    {
-      title: $.trim(title)
-      cites: $.trim(cites)
-      authors: $.trim(authors)
-      venue: $.trim(venue)
-    }
 
   sites = [
     # ["MSFT", msft_uri, msft_scrape],
@@ -106,21 +125,33 @@ scrape = (outfile, errfile, author_raw, author, title_raw, title) ->
   casper.then ->
     @each sites, (self, site) ->
       [ svc, uri, scrapefn ] = site
+      dbg "URI:'#{uri}'"
       @thenOpen uri, () ->
+        @capture "page.png"
         rs = @evaluate scrapefn, { author }
+        dbg "RS:'#{JSON.stringify(rs)}'"
         try
-          fs.write outfile,
-            "'#{author_raw}' | '#{author}' | '#{title_raw}' | '#{title}' |"\
-            +" #{svc} | #{uri} |"\
-            +" '#{rs.title}' | '#{rs.authors}' | #{rs.cites} | '#{rs.venue}' |"\
-            +" '#{rs.citation}'\n", "a"
+          os = "#{oid}\t#{author}\t#{rs.title}\t#{svc}\t#{rs.wos}\t#{rs.cites}"
+          # os +=
+          # "#{author_raw}\t#{title_raw}\t#{uri}\t#{rs.venue}\t#{rs.citation}"
+          os += "\n"
+          fs.write outfile, os, "a"
         catch error
           @log "ERROR: '#{error}'"
-          @log @page
           fs.write errfile,
             "#{author_raw} | #{title_raw} | #{uri} | #{error}\n", "a"
-          @capture "captcha.png"
-          fs.write "captcha.html", @getHTML()
+          @capture "captcha-pre.png"
+          @waitForSelector 'img#recaptcha_challenge_image',
+            ( ->
+              @capture "captcha-post.png"
+              captcha = raw_input "captcha> "
+              @log "CAPTCHA: #{captcha}"
+              @fill "form[method='get']",
+                { 'recaptcha_response_field': captcha }, true
+              ),
+              ->,
+              10000
+
 
 ## handle inputs
 
@@ -135,12 +166,19 @@ casper.start -> dbg "starting!"
 
 outfile = "#{infile}.out"
 try fs.remove outfile catch error
+
 errfile = "#{infile}.err"
 try fs.remove errfile catch error
-for input in (i for i in inputs.split("\n") when i isnt '')
-  [author_raw, title_raw...] = input.split("\t")
-  author = encodeURIComponent(author_raw.replace(/,/g,'').split(".")[0])
-  title = encodeURIComponent(title_raw)
-  scrape outfile, errfile, author_raw, author, title_raw, title
+
+stopwords = (ws) ->
+  (w for w in ws.join(" ").split(" ") if w not in ["and", "for", "of"])
+
+casper.each (i for i in inputs.split("\n") when i isnt ''), (self, input) ->
+  @wait 1000, () ->
+    [oid, author_raw, title_raw...] = input.split("\t")
+    sn = author_raw.trim().replace(/[,.]/g,'').split(' ')[0]
+    author = encodeURIComponent("#{sn}")
+    title = encodeURIComponent(stopwords(title_raw).join(" ").trim())
+    scrape outfile, errfile, author_raw, author, title_raw, title, oid
 
 casper.run -> casper.exit()
