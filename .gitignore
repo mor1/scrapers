@@ -1,6 +1,5 @@
 .DS_Store
 debug.*
-*.txt
-*.csv
 *.js
 *.json
+data/
