@@ -117,7 +117,7 @@ scrape = (outfile, errfile, author_raw, author, title_raw, title, oid) ->
         dbg "LAST_RESPONSE:'#{last_response}' RS:'#{JSON.stringify(rs)}'"
         if not rs?
           fs.write errfile,
-            "#{oid} | #{author_raw} | #{title_raw} | #{uri}\n", "a"
+            "#{oid}\t#{(new Date).toISOString()}\t#{author_raw}\t#{title_raw}\t#{uri}\t#{last_response}\n", "a"
 
           switch last_response
             when -1, 200
