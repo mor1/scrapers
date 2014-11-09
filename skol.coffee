@@ -169,7 +169,7 @@ fs.makeTree "#{infile}-pngs"
 
 stopwords = (ws) ->
   (w for w in ws.join(" ").split(" ") when w.toLowerCase() not in [
-    "and", "for", "of", "a", "the"
+    "and", "for", "of", "a", "an", "the", "in"
     ])
 
 casper.each (i for i in inputs.split("\n") when i isnt ''), (self, input) ->
