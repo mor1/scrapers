@@ -133,6 +133,9 @@ scrape = (outfile, errfile, author_raw, author, title_raw, title, oid) ->
                     ->,
                     5000
 
+            when 403
+              @wait 5000, ->
+
             when 503
               @capture "captcha.png"
               captcha = raw_input "ipv4-captcha> "
