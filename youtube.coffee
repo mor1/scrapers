@@ -50,13 +50,20 @@ infile = casper.cli.args[0]
 inputs = fs.open(infile, "r").read()
 usage() if not inputs?
 
+stats = {
+  views: 0,
+  videos: 0,
+  likes: 0,
+  dislikes: 0
+  }
+
 ## go!
 casper.start -> ""
-casper.echo "["
+casper.echo '{ "videos": ['
 casper.each ([uri, idx] for uri,idx in inputs.split("\n") when uri isnt ''), (self, [uri, idx]) ->
   @wait 500, () ->
     @thenOpen uri, () ->
-      @capture "youtube.png"
+      # @capture "youtube.png"
       rs = @evaluate ((uri, idx) ->
         published = $("#watch-uploader-info").text().match("Published on (.*)")
         published = if published?.length > 0 then published[1]
@@ -72,14 +79,19 @@ casper.each ([uri, idx] for uri,idx in inputs.split("\n") when uri isnt ''), (se
           uri: uri,
           published: published,
           title: title,
-          views: views,
-          likes: likes,
-          dislikes: dislikes
+          views: parseInt(views.replace(/,/g,'')),
+          likes: parseInt(likes.replace(/,/g,'')),
+          dislikes: parseInt(dislikes.replace(/,/g,''))
         }
       ) , { uri, idx }
+
+      stats.videos += 1
+      stats.views += rs.views
+      stats.likes += rs.likes
+      stats.dislikes += rs.dislikes
 
       @echo "#{if idx!=0 then ',' else ''}#{JSON.stringify rs}"
 
 casper.run ->
-  @echo "]"
+  @echo "], \"stats\": #{JSON.stringify stats}}"
   @exit()
