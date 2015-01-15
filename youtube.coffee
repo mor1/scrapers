@@ -47,6 +47,7 @@ casper = require('casper').create({
 
 usage = -> casper.die "Usage: #{ system.args[3] } <inputs>", 1
 infile = casper.cli.args[0]
+usage() if not infile?
 inputs = fs.open(infile, "r").read()
 usage() if not inputs?
 
@@ -60,37 +61,38 @@ stats = {
 ## go!
 casper.start -> ""
 casper.echo '{ "videos": ['
-casper.each ([uri, idx] for uri,idx in inputs.split("\n") when uri isnt ''), (self, [uri, idx]) ->
-  @wait 500, () ->
-    @thenOpen uri, () ->
-      # @capture "youtube.png"
-      rs = @evaluate ((uri, idx) ->
-        published = $("#watch-uploader-info").text().match("Published on (.*)")
-        published = if published?.length > 0 then published[1]
-        title = $("h1#watch-headline-title").text().trim()
-        views = $(".watch-view-count").text().trim()
+casper.each ([uri, idx] for uri,idx in inputs.split("\n") when uri isnt ''),
+  (self, [uri, idx]) ->
+    @wait 500, () ->
+      @thenOpen uri, () ->
+        # @capture "youtube.png"
+        rs = @evaluate ((uri, idx) ->
+          published = $("#watch-uploader-info").text().match("Published on (.*)")
+          published = if published?.length > 0 then published[1]
+          title = $("h1#watch-headline-title").text().trim()
+          views = $(".watch-view-count").text().trim()
 
-        vote_tag = (vote) ->
-          "span#watch-like-dislike-buttons button#watch-#{vote} span.yt-uix-button-content"
-        likes = $(vote_tag "like").text().trim()
-        dislikes = $(vote_tag "dislike").text().trim()
-        {
-          idx: idx,
-          uri: uri,
-          published: published,
-          title: title,
-          views: parseInt(views.replace(/,/g,'')),
-          likes: parseInt(likes.replace(/,/g,'')),
-          dislikes: parseInt(dislikes.replace(/,/g,''))
-        }
-      ) , { uri, idx }
+          vote_tag = (vote) ->
+            "span#watch-like-dislike-buttons button#watch-#{vote} span.yt-uix-button-content"
+          likes = $(vote_tag "like").text().trim()
+          dislikes = $(vote_tag "dislike").text().trim()
+          {
+            idx: idx,
+            uri: uri,
+            published: published,
+            title: title,
+            views: parseInt(views.replace(/,/g,'')),
+            likes: parseInt(likes.replace(/,/g,'')),
+            dislikes: parseInt(dislikes.replace(/,/g,''))
+          }
+        ) , { uri, idx }
 
-      stats.videos += 1
-      stats.views += rs.views
-      stats.likes += rs.likes
-      stats.dislikes += rs.dislikes
+        stats.videos += 1
+        stats.views += rs.views
+        stats.likes += rs.likes
+        stats.dislikes += rs.dislikes
 
-      @echo "#{if idx!=0 then ',' else ''}#{JSON.stringify rs}"
+        @echo "#{if idx!=0 then ',' else ''}#{JSON.stringify rs}"
 
 casper.run ->
   @echo "], \"stats\": #{JSON.stringify stats}}"
