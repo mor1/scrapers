@@ -67,15 +67,15 @@ casper.each ([uri, idx] for uri,idx in inputs.split("\n") when uri isnt ''),
       @thenOpen uri, () ->
         # @capture "youtube.png"
         rs = @evaluate ((uri, idx) ->
-          published = $("#watch-uploader-info").text().match("Published on (.*)")
+          published =
+            $("#watch-uploader-info").text().match("Published on (.*)")
           published = if published?.length > 0 then published[1]
-          title = $("h1#watch-headline-title").text().trim()
+          title = $("span.watch-title").text().trim()
           views = $(".watch-view-count").text().trim()
-
-          vote_tag = (vote) ->
-            "span#watch-like-dislike-buttons button#watch-#{vote} span.yt-uix-button-content"
-          likes = $(vote_tag "like").text().trim()
-          dislikes = $(vote_tag "dislike").text().trim()
+          likes =
+            $("button#watch-like > span").filter(":first").text().trim()
+          dislikes =
+            $("button#watch-dislike > span").filter(":first").text().trim()
           {
             idx: idx,
             uri: uri,
