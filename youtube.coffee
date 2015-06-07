@@ -1,4 +1,4 @@
-#!/usr/bin/env casperjs
+#!/usr/bin/env casperjs --ignore-ssl-errors=true
 
 # Copyright (c) 2014, Richard Mortier <mort@cantab.net>
 #
