@@ -73,9 +73,11 @@ casper.each ([uri, idx] for uri,idx in inputs.split("\n") when uri isnt ''),
           title = $("span.watch-title").text().trim()
           views = $(".watch-view-count").text().trim()
           likes =
-            $("button#watch-like > span").filter(":first").text().trim()
+            $("button.like-button-renderer-like-button-unclicked > span")
+              .filter(":first").text().trim()
           dislikes =
-            $("button#watch-dislike > span").filter(":first").text().trim()
+            $("button.like-button-renderer-dislike-button-unclicked > span")
+              .filter(":first").text().trim()
           {
             idx: idx,
             uri: uri,
